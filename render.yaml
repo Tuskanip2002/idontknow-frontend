@@ -1,0 +1,56 @@
+services:
+  - type: web
+    name: idontknow-api
+    runtime: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/v1/estado
+    autoDeployTrigger: "off"
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DB_HOST
+        fromDatabase: {name: idontknow-db, property: host}
+      - key: DB_PORT
+        fromDatabase: {name: idontknow-db, property: port}
+      - key: DB_NAME
+        fromDatabase: {name: idontknow-db, property: database}
+      - key: DB_USERNAME
+        fromDatabase: {name: idontknow-db, property: user}
+      - key: DB_PASSWORD
+        fromDatabase: {name: idontknow-db, property: password}
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_APP_PASSWORD
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+  - type: web
+    name: idontknow-web
+    runtime: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: ./Dockerfile.web
+    dockerContext: .
+    autoDeployTrigger: "off"
+    healthCheckPath: /
+    envVars:
+      - key: BACKEND_ORIGIN
+        sync: false
+databases:
+  - name: idontknow-db
+    databaseName: idontknowdb
+    user: idontknow
+    region: oregon
+    plan: basic-256mb
+    ipAllowList: []

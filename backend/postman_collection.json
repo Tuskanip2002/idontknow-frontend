@@ -1,0 +1,1923 @@
+{
+  "info": {
+    "name": "I don't know - API (CS2031 DBP)",
+    "description": "API del backend de \"I don't know\": un diario donde cada noticia es una probabilidad, basado en datos de Polymarket, con portadas diarias en español.\n\n**Autenticación**: la colección tiene configurado Bearer Token a nivel de colección usando la variable {{token}}. Corre cualquiera de los requests de la carpeta Auth primero — el token se guarda solo (vía script de test) y el resto de los requests que lo necesitan lo heredan automáticamente. Los endpoints públicos (lectura de mercados, ediciones, titulares, categorías) tienen 'No Auth' seteado explícitamente para que funcionen sin loguearse.\n\n**Usuario admin de prueba** (sembrado por data.sql): admin@idontknow.com / admin123 — necesario para crear/borrar categorías.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "categoriaId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "mercadoId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "titularId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "fecha",
+      "value": "2026-09-23",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Registro e inicio de sesión. Ambos endpoints son públicos (no requieren token) y devuelven un JWT que se guarda automáticamente en la variable {{token}} para el resto de la colección.",
+      "item": [
+        {
+          "name": "Registrar usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Crea una cuenta nueva. Dispara el evento UsuarioRegistradoEvent que envía un correo de bienvenida de forma asíncrona. El JWT devuelto se guarda automáticamente en {{token}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Joseph Test\",\n  \"email\": \"joseph@test.com\",\n  \"password\": \"Password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [
+            {
+              "name": "201 - Registro exitoso",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"Fernando Rios\",\n  \"email\": \"fernando@test.com\",\n  \"password\": \"Password123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"token\": \"eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJmZXJuYW5kb0B0ZXN0LmNvbSIsImlhdCI6MTc5MDE5OTU5NSwiZXhwIjoxNzkwMjg1OTk1fQ.Z9xU_SGe--4awh8rNyJciO9cxDyTYTgRtX0FKzQHbMcdbvpmEO47voTtYSMjCVDs\",\n  \"tipo\": \"Bearer\",\n  \"nombre\": \"Fernando Rios\",\n  \"email\": \"fernando@test.com\",\n  \"role\": \"USER\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "409 - Email ya registrado",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"Joseph Test\",\n  \"email\": \"joseph@test.com\",\n  \"password\": \"Password123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"timestamp\": \"2026-09-23T21:39:46.621354506\",\n  \"status\": 409,\n  \"error\": \"Conflict\",\n  \"message\": \"Ya existe una cuenta con ese email\",\n  \"path\": \"/api/v1/auth/register\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 - Contraseña débil",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"Maria Test\",\n  \"email\": \"maria@test.com\",\n  \"password\": \"password123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"timestamp\": \"2026-09-23T21:39:46.635825193\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"password: La contraseña debe tener al menos una mayúscula, una minúscula y un número\",\n  \"path\": \"/api/v1/auth/register\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 - Email inválido",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"Maria Test\",\n  \"email\": \"no-es-un-email\",\n  \"password\": \"Password123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"timestamp\": \"2026-09-23T21:39:46.664241039\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"email: debe ser una dirección de correo electrónico con formato correcto\",\n  \"path\": \"/api/v1/auth/register\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const json = pm.response.json();",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (usuario normal)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Inicia sesión con un usuario ya registrado. El JWT devuelto se guarda automáticamente en {{token}} para las siguientes requests que requieran autenticación.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"joseph@test.com\",\n  \"password\": \"Password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Login exitoso",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"joseph@test.com\",\n  \"password\": \"Password123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"token\": \"eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJqb3NlcGhAdGVzdC5jb20iLCJpYXQiOjE3OTAxOTk1ODYsImV4cCI6MTc5MDI4NTk4Nn0.e4patvI6hEnzP0o8UtTUminUg9ZbL9rtj_DojCSTDdRGpBsgMCKvZDVUlDMXlAHG\",\n  \"tipo\": \"Bearer\",\n  \"nombre\": \"Joseph Actualizado\",\n  \"email\": \"joseph@test.com\",\n  \"role\": \"USER\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "401 - Credenciales incorrectas",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"joseph@test.com\",\n  \"password\": \"OtraClave123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"timestamp\": \"2026-09-23T21:39:46.856659059\",\n  \"status\": 401,\n  \"error\": \"Unauthorized\",\n  \"message\": \"Email o contraseña incorrectos\",\n  \"path\": \"/api/v1/auth/login\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (admin seed)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Inicia sesión con el usuario admin precargado por data.sql (role ADMIN). Usa este request antes de probar los endpoints de Categorías que requieren rol ADMIN (crear/borrar). El JWT queda en {{token}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@idontknow.com\",\n  \"password\": \"admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Login admin",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"admin@idontknow.com\",\n  \"password\": \"admin123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"token\": \"eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbkBpZG9udGtub3cuY29tIiwiaWF0IjoxNzkwMTk5NTg2LCJleHAiOjE3OTAyODU5ODZ9.JKTolUFE3Yx970ynOPiqwoOr64lGlz-aSo8bwbGb5EWWurX8YTwhw29XeFZwukXe\",\n  \"tipo\": \"Bearer\",\n  \"nombre\": \"Administrador\",\n  \"email\": \"admin@idontknow.com\",\n  \"role\": \"ADMIN\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "description": "Perfil del usuario autenticado. Todos requieren el header Authorization con el JWT (heredado de la colección vía {{token}}).",
+      "item": [
+        {
+          "name": "Ver mi perfil",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "me"
+              ]
+            },
+            "description": "Devuelve los datos del usuario autenticado (identificado a partir del token, no por un ID en la URL), incluyendo las categorías que sigue."
+          },
+          "response": [
+            {
+              "name": "200 - Perfil del usuario autenticado",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "usuarios",
+                    "me"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 2,\n  \"nombre\": \"Joseph Actualizado\",\n  \"email\": \"joseph@test.com\",\n  \"role\": \"USER\",\n  \"fechaRegistro\": \"2026-09-23T21:37:12.028186\",\n  \"categoriasSeguidas\": [\n    \"POLITICA\"\n  ]\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Actualizar mi perfil",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "me"
+              ]
+            },
+            "description": "Actualiza nombre y/o contraseña del usuario autenticado. Ambos campos son opcionales: envía solo el que quieras cambiar.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Joseph Actualizado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Perfil actualizado",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/usuarios/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "usuarios",
+                    "me"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"Joseph Actualizado\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 2,\n  \"nombre\": \"Joseph Actualizado\",\n  \"email\": \"joseph@test.com\",\n  \"role\": \"USER\",\n  \"fechaRegistro\": \"2026-09-23T21:37:12.028186\",\n  \"categoriasSeguidas\": []\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Seguir una categoría",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/me/categorias/{{categoriaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "me",
+                "categorias",
+                "{{categoriaId}}"
+              ]
+            },
+            "description": "Agrega la categoría indicada a la lista de temas que sigue el usuario. Esto determina, entre otras cosas, a quién se le notifica por correo cuando un mercado de esa categoría cruza el 50%."
+          },
+          "response": [
+            {
+              "name": "200 - Categoría seguida",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/usuarios/me/categorias/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "usuarios",
+                    "me",
+                    "categorias",
+                    "1"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 2,\n  \"nombre\": \"Joseph Actualizado\",\n  \"email\": \"joseph@test.com\",\n  \"role\": \"USER\",\n  \"fechaRegistro\": \"2026-09-23T21:37:12.028186\",\n  \"categoriasSeguidas\": [\n    \"POLITICA\"\n  ]\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 - Categoría inexistente",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/usuarios/me/categorias/999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "usuarios",
+                    "me",
+                    "categorias",
+                    "999"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"timestamp\": \"2026-09-23T21:39:47.111608517\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Categoría no encontrada\",\n  \"path\": \"/api/v1/usuarios/me/categorias/999\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Dejar de seguir una categoría",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/me/categorias/{{categoriaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "me",
+                "categorias",
+                "{{categoriaId}}"
+              ]
+            },
+            "description": "Quita la categoría indicada de los temas que sigue el usuario."
+          },
+          "response": [
+            {
+              "name": "204 - Dejó de seguir la categoría",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/usuarios/me/categorias/2",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "usuarios",
+                    "me",
+                    "categorias",
+                    "2"
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "header": [],
+              "cookie": [],
+              "body": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Categorías",
+      "description": "Listar es público. Crear y borrar requieren rol ADMIN (usa el request 'Login (admin seed)' de la carpeta Auth primero).",
+      "item": [
+        {
+          "name": "Listar categorías",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categorias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categorias"
+              ]
+            },
+            "description": "Lista todas las categorías disponibles (política, economía, deportes, tecnología, etc.). Público, no requiere token — se usa para poblar filtros en el frontend.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Categorías disponibles",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/categorias",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "categorias"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "[\n  {\n    \"id\": 1,\n    \"nombre\": \"POLITICA\"\n  },\n  {\n    \"id\": 2,\n    \"nombre\": \"ECONOMIA\"\n  },\n  {\n    \"id\": 3,\n    \"nombre\": \"DEPORTES\"\n  },\n  {\n    \"id\": 4,\n    \"nombre\": \"TECNOLOGIA\"\n  }\n]",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Crear categoría (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categorias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categorias"
+              ]
+            },
+            "description": "Crea una nueva categoría. Restringido con @PreAuthorize(\"hasRole('ADMIN')\") — requiere loguearse con el usuario admin sembrado en data.sql.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"SALUD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "201 - Categoría creada",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/categorias",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "categorias"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"SALUD\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 5,\n  \"nombre\": \"SALUD\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "403 - Usuario sin rol ADMIN",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/categorias",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "categorias"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"SALUD\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [],
+              "cookie": [],
+              "body": ""
+            },
+            {
+              "name": "409 - Categoría duplicada",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/categorias",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "categorias"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"SALUD\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"timestamp\": \"2026-09-23T21:39:47.248092493\",\n  \"status\": 409,\n  \"error\": \"Conflict\",\n  \"message\": \"Ya existe la categoría SALUD\",\n  \"path\": \"/api/v1/categorias\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 - Nombre vacío",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/categorias",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "categorias"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"timestamp\": \"2026-09-23T21:39:47.26686891\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"nombre: no debe estar vacío\",\n  \"path\": \"/api/v1/categorias\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Borrar categoría (ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categorias/{{categoriaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categorias",
+                "{{categoriaId}}"
+              ]
+            },
+            "description": "Elimina una categoría por ID. Restringido a rol ADMIN."
+          },
+          "response": [
+            {
+              "name": "204 - Categoría borrada",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/categorias/5",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "categorias",
+                    "5"
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "header": [],
+              "cookie": [],
+              "body": ""
+            },
+            {
+              "name": "404 - Categoría inexistente",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/categorias/5",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "categorias",
+                    "5"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"timestamp\": \"2026-09-23T21:39:47.379013455\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Categoría no encontrada\",\n  \"path\": \"/api/v1/categorias/5\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Mercados",
+      "description": "Consulta de mercados de Polymarket ya sincronizados. Todo público, no requiere token.",
+      "item": [
+        {
+          "name": "Listar mercados (paginado)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/mercados?page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "mercados"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Lista los mercados sincronizados, paginados. Usa los query params estándar de Spring Data (page, size, sort).",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Primera página",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/mercados?page=0&size=3",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "mercados"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "3"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"content\": [\n    {\n      \"id\": 1,\n      \"preguntaOriginal\": \"Xi Jinping out before 2027?\",\n      \"probabilidadActual\": 0.04,\n      \"resuelto\": false,\n      \"categorias\": []\n    },\n    {\n      \"id\": 2,\n      \"preguntaOriginal\": \"Will Gavin Newsom win the 2028 Democratic presidential nomination?\",\n      \"probabilidadActual\": 0.13,\n      \"resuelto\": false,\n      \"categorias\": [\n        \"POLITICA\"\n      ]\n    },\n    {\n      \"id\": 3,\n      \"preguntaOriginal\": \"Will Alexandria Ocasio-Cortez win the 2028 Democratic presidential nomination?\",\n      \"probabilidadActual\": 0.18,\n      \"resuelto\": false,\n      \"categorias\": [\n        \"POLITICA\"\n      ]\n    }\n  ],\n  \"empty\": false,\n  \"first\": true,\n  \"last\": false,\n  \"number\": 0,\n  \"numberOfElements\": 3,\n  \"pageable\": {\n    \"offset\": 0,\n    \"pageNumber\": 0,\n    \"pageSize\": 3,\n    \"paged\": true,\n    \"sort\": {\n      \"empty\": true,\n      \"sorted\": false,\n      \"unsorted\": true\n    },\n    \"unpaged\": false\n  },\n  \"size\": 3,\n  \"sort\": {\n    \"empty\": true,\n    \"sorted\": false,\n    \"unsorted\": true\n  },\n  \"totalElements\": 100,\n  \"totalPages\": 34\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "200 - Filtro por categoría",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/mercados?categoria=POLITICA&page=0&size=3",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "mercados"
+                  ],
+                  "query": [
+                    {
+                      "key": "categoria",
+                      "value": "POLITICA"
+                    },
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "3"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"content\": [\n    {\n      \"id\": 2,\n      \"preguntaOriginal\": \"Will Gavin Newsom win the 2028 Democratic presidential nomination?\",\n      \"probabilidadActual\": 0.13,\n      \"resuelto\": false,\n      \"categorias\": [\n        \"POLITICA\"\n      ]\n    },\n    {\n      \"id\": 3,\n      \"preguntaOriginal\": \"Will Alexandria Ocasio-Cortez win the 2028 Democratic presidential nomination?\",\n      \"probabilidadActual\": 0.18,\n      \"resuelto\": false,\n      \"categorias\": [\n        \"POLITICA\"\n      ]\n    }\n  ],\n  \"empty\": false,\n  \"first\": true,\n  \"last\": false,\n  \"number\": 0,\n  \"numberOfElements\": 2,\n  \"pageable\": {\n    \"offset\": 0,\n    \"pageNumber\": 0,\n    \"pageSize\": 3,\n    \"paged\": true,\n    \"sort\": {\n      \"empty\": true,\n      \"sorted\": false,\n      \"unsorted\": true\n    },\n    \"unpaged\": false\n  },\n  \"size\": 3,\n  \"sort\": {\n    \"empty\": true,\n    \"sorted\": false,\n    \"unsorted\": true\n  },\n  \"totalElements\": 99,\n  \"totalPages\": 33\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "200 - Búsqueda por texto",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/mercados?q=nomination&page=0&size=3",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "mercados"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "nomination"
+                    },
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "3"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"content\": [\n    {\n      \"id\": 2,\n      \"preguntaOriginal\": \"Will Gavin Newsom win the 2028 Democratic presidential nomination?\",\n      \"probabilidadActual\": 0.13,\n      \"resuelto\": false,\n      \"categorias\": [\n        \"POLITICA\"\n      ]\n    },\n    {\n      \"id\": 3,\n      \"preguntaOriginal\": \"Will Alexandria Ocasio-Cortez win the 2028 Democratic presidential nomination?\",\n      \"probabilidadActual\": 0.18,\n      \"resuelto\": false,\n      \"categorias\": [\n        \"POLITICA\"\n      ]\n    }\n  ],\n  \"empty\": false,\n  \"first\": true,\n  \"last\": false,\n  \"number\": 0,\n  \"numberOfElements\": 2,\n  \"pageable\": {\n    \"offset\": 0,\n    \"pageNumber\": 0,\n    \"pageSize\": 3,\n    \"paged\": true,\n    \"sort\": {\n      \"empty\": true,\n      \"sorted\": false,\n      \"unsorted\": true\n    },\n    \"unpaged\": false\n  },\n  \"size\": 3,\n  \"sort\": {\n    \"empty\": true,\n    \"sorted\": false,\n    \"unsorted\": true\n  },\n  \"totalElements\": 53,\n  \"totalPages\": 18\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Ver detalle de un mercado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/mercados/{{mercadoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "mercados",
+                "{{mercadoId}}"
+              ]
+            },
+            "description": "Devuelve el detalle completo de un mercado, incluyendo su historial de probabilidades (para graficar cómo cambió en el tiempo).",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Detalle con historial",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/mercados/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "mercados",
+                    "1"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 1,\n  \"preguntaOriginal\": \"Xi Jinping out before 2027?\",\n  \"probabilidadActual\": 0.04,\n  \"resuelto\": false,\n  \"fechaResolucionEstimada\": \"2027-01-01T04:59:00\",\n  \"categorias\": [],\n  \"historial\": [\n    {\n      \"fecha\": \"2026-09-23\",\n      \"probabilidad\": 0.04\n    }\n  ]\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 - Mercado inexistente",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/mercados/999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "mercados",
+                    "999"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"timestamp\": \"2026-09-23T21:39:47.443623423\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Mercado no encontrado\",\n  \"path\": \"/api/v1/mercados/999\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Ediciones (Portadas)",
+      "description": "La portada diaria armada por el proceso de sincronización + scoring. Todo público.",
+      "item": [
+        {
+          "name": "Portada de hoy",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ediciones/hoy",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ediciones",
+                "hoy"
+              ]
+            },
+            "description": "Devuelve la edición (portada) del día actual con sus titulares. Si el job programado (PolymarketSyncScheduler) todavía no corrió hoy, puede devolver 404.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Portada del día",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/ediciones/hoy",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "ediciones",
+                    "hoy"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 1,\n  \"fecha\": \"2026-09-23\",\n  \"titulares\": [\n    {\n      \"id\": 1,\n      \"textoEspanol\": \"Xi Jinping out before 2027?\",\n      \"probabilidadHoy\": 0.04,\n      \"cambioDesdeAyer\": 0,\n      \"mercadoId\": 1\n    },\n    {\n      \"id\": 2,\n      \"textoEspanol\": \"Will Gavin Newsom win the 2028 Democratic presidential nomination?\",\n      \"probabilidadHoy\": 0.13,\n      \"cambioDesdeAyer\": 0,\n      \"mercadoId\": 2\n    },\n    {\n      \"id\": 3,\n      \"textoEspanol\": \"Will Alexandria Ocasio-Cortez win the 2028 Democratic presidential nomination?\",\n      \"probabilidadHoy\": 0.18,\n      \"cambioDesdeAyer\": 0,\n      \"mercadoId\": 3\n    }\n  ]\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Portada por fecha",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ediciones/{{fecha}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ediciones",
+                "{{fecha}}"
+              ]
+            },
+            "description": "Devuelve la portada de un día específico, en formato de fecha ISO (yyyy-MM-dd). Útil para la sección 'Archivo' de días anteriores.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Portada de una fecha",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/ediciones/2026-09-23",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "ediciones",
+                    "2026-09-23"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 1,\n  \"fecha\": \"2026-09-23\",\n  \"titulares\": [\n    {\n      \"id\": 1,\n      \"textoEspanol\": \"Xi Jinping out before 2027?\",\n      \"probabilidadHoy\": 0.04,\n      \"cambioDesdeAyer\": 0,\n      \"mercadoId\": 1\n    },\n    {\n      \"id\": 2,\n      \"textoEspanol\": \"Will Gavin Newsom win the 2028 Democratic presidential nomination?\",\n      \"probabilidadHoy\": 0.13,\n      \"cambioDesdeAyer\": 0,\n      \"mercadoId\": 2\n    },\n    {\n      \"id\": 3,\n      \"textoEspanol\": \"Will Alexandria Ocasio-Cortez win the 2028 Democratic presidential nomination?\",\n      \"probabilidadHoy\": 0.18,\n      \"cambioDesdeAyer\": 0,\n      \"mercadoId\": 3\n    }\n  ]\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 - Fecha sin portada",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/ediciones/2020-01-01",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "ediciones",
+                    "2020-01-01"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"timestamp\": \"2026-09-23T21:39:47.476339698\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"No hay portada para 2020-01-01\",\n  \"path\": \"/api/v1/ediciones/2020-01-01\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Archivo de portadas (paginado)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ediciones?page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ediciones"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Lista resumida de todas las portadas históricas, paginada, sin traer el detalle completo de titulares (usa EdicionSummaryDTO para no sobrecargar la respuesta).",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Archivo",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/ediciones?page=0&size=10",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "ediciones"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "10"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"content\": [\n    {\n      \"id\": 1,\n      \"fecha\": \"2026-09-23\",\n      \"cantidadTitulares\": 10\n    }\n  ],\n  \"empty\": false,\n  \"first\": true,\n  \"last\": true,\n  \"number\": 0,\n  \"numberOfElements\": 1,\n  \"pageable\": {\n    \"offset\": 0,\n    \"pageNumber\": 0,\n    \"pageSize\": 10,\n    \"paged\": true,\n    \"sort\": {\n      \"empty\": true,\n      \"sorted\": false,\n      \"unsorted\": true\n    },\n    \"unpaged\": false\n  },\n  \"size\": 10,\n  \"sort\": {\n    \"empty\": true,\n    \"sorted\": false,\n    \"unsorted\": true\n  },\n  \"totalElements\": 1,\n  \"totalPages\": 1\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Titulares",
+      "description": "Detalle de un titular individual. Público.",
+      "item": [
+        {
+          "name": "Ver detalle de un titular",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/titulares/{{titularId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "titulares",
+                "{{titularId}}"
+              ]
+            },
+            "description": "Devuelve el titular con su historial de probabilidad (para el gráfico del detalle) y la fecha estimada de resolución del mercado.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [
+            {
+              "name": "200 - Detalle con historial",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/titulares/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "titulares",
+                    "1"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 1,\n  \"textoEspanol\": \"Xi Jinping out before 2027?\",\n  \"probabilidadHoy\": 0.04,\n  \"cambioDesdeAyer\": 0,\n  \"fechaResolucionEstimada\": \"2027-01-01T04:59:00\",\n  \"historial\": [\n    {\n      \"fecha\": \"2026-09-23\",\n      \"probabilidad\": 0.04\n    }\n  ]\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 - Titular inexistente",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/titulares/999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "titulares",
+                    "999"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"timestamp\": \"2026-09-23T21:39:47.503685612\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Titular no encontrado\",\n  \"path\": \"/api/v1/titulares/999\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Guardados",
+      "description": "Titulares que el usuario autenticado marcó para leer después. Requieren token.",
+      "item": [
+        {
+          "name": "Guardar un titular",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/guardados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "guardados"
+              ]
+            },
+            "description": "Guarda un titular en la lista personal del usuario autenticado. Falla con 409 si ya lo tenía guardado (DuplicateResourceException).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titularId\": {{titularId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "201 - Titular guardado",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/guardados",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "guardados"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"titularId\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 3,\n  \"titular\": {\n    \"id\": 1,\n    \"textoEspanol\": \"Xi Jinping out before 2027?\",\n    \"probabilidadHoy\": 0.04,\n    \"cambioDesdeAyer\": 0,\n    \"mercadoId\": 1\n  },\n  \"fechaGuardado\": \"2026-09-23T21:53:56.609128814\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "409 - Ya estaba guardado",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/guardados",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "guardados"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"titularId\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"timestamp\": \"2026-09-23T21:53:56.490854773\",\n  \"status\": 409,\n  \"error\": \"Conflict\",\n  \"message\": \"Ya guardaste este titular\",\n  \"path\": \"/api/v1/guardados\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 - Falta titularId",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/guardados",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "guardados"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"timestamp\": \"2026-09-23T21:39:47.554999528\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"titularId: no debe ser nulo\",\n  \"path\": \"/api/v1/guardados\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 - Titular inexistente",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/guardados",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "guardados"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"titularId\": 999\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"timestamp\": \"2026-09-23T21:39:47.577790277\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"Titular no encontrado\",\n  \"path\": \"/api/v1/guardados\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Quitar un titular guardado",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/guardados/{{titularId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "guardados",
+                "{{titularId}}"
+              ]
+            },
+            "description": "Quita un titular de la lista de guardados del usuario autenticado."
+          },
+          "response": [
+            {
+              "name": "204 - Titular quitado",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/guardados/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "guardados",
+                    "1"
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "header": [],
+              "cookie": [],
+              "body": ""
+            },
+            {
+              "name": "404 - No estaba guardado",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/guardados/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "guardados",
+                    "1"
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"timestamp\": \"2026-09-23T21:53:56.586900812\",\n  \"status\": 404,\n  \"error\": \"Not Found\",\n  \"message\": \"No tienes guardado ese titular\",\n  \"path\": \"/api/v1/guardados/1\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Listar mis guardados",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/guardados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "guardados"
+              ]
+            },
+            "description": "Lista todos los titulares que el usuario autenticado tiene guardados."
+          },
+          "response": [
+            {
+              "name": "200 - Titulares guardados",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/guardados",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "guardados"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "[\n  {\n    \"id\": 3,\n    \"titular\": {\n      \"id\": 1,\n      \"textoEspanol\": \"Xi Jinping out before 2027?\",\n      \"probabilidadHoy\": 0.04,\n      \"cambioDesdeAyer\": 0,\n      \"mercadoId\": 1\n    },\n    \"fechaGuardado\": \"2026-09-23T21:53:56.609129\"\n  }\n]",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

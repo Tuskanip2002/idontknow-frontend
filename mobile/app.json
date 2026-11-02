@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "I Don't Know",
+    "slug": "idontknow-dbp",
+    "scheme": "idontknow",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.idontknow.diario",
+      "infoPlist": {
+        "NSMotionUsageDescription": "Inclina el teléfono para recorrer titulares sin tocar la pantalla."
+      }
+    },
+    "android": {
+      "package": "com.idontknow.diario"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Permite escanear el QR de una noticia para abrirla en el diario.",
+          "recordAudioAndroid": false
+        }
+      ],
+      "expo-secure-store"
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}

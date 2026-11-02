@@ -1,0 +1,20 @@
+{
+  "name": "idontknow-platform",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "web",
+    "mobile",
+    "packages/api"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev -w web",
+    "dev:mobile": "npm run start -w mobile",
+    "build": "npm run build -w web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test -w packages/api && npm run test -w web"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10"
+  }
+}

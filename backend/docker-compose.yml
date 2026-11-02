@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: idontknow-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: idontknowdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d idontknowdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+    container_name: idontknow-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/idontknowdb
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: ${JWT_SECRET:-esta-es-una-clave-secreta-de-desarrollo-cambiala-en-produccion-123456}
+      MAIL_USERNAME: ${MAIL_USERNAME:-dummy@example.com}
+      MAIL_APP_PASSWORD: ${MAIL_APP_PASSWORD:-dummy}
+      GROQ_API_KEY: ${GROQ_API_KEY:-dummy}
+
+volumes:
+  postgres_data:

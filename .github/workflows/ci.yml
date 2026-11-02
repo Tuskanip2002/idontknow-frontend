@@ -1,0 +1,32 @@
+name: Platform checks
+on:
+  pull_request:
+  push:
+    branches: [master, main, develop]
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run export -w mobile
+        env:
+          EXPO_NO_TELEMETRY: 1
+          EXPO_OFFLINE: 1
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      - run: chmod +x mvnw && ./mvnw verify -Dspring.profiles.active=test
+        working-directory: backend

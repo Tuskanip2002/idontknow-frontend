@@ -1,0 +1,43 @@
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: idontknowdb
+      POSTGRES_USER: idontknow
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Configura DB_PASSWORD en .env}
+    volumes:
+      - idk_database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U idontknow -d idontknowdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+  backend:
+    build: ./backend
+    depends_on:
+      database:
+        condition: service_healthy
+    ports: ["8080:8080"]
+    environment:
+      DB_URL: jdbc:postgresql://database:5432/idontknowdb
+      DB_USERNAME: idontknow
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?Configura JWT_SECRET en .env}
+      COOKIE_SECURE: "false"
+      CORS_ALLOWED_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+      MAIL_USERNAME: ${MAIL_USERNAME:-dummy@example.com}
+      MAIL_APP_PASSWORD: ${MAIL_APP_PASSWORD:-dummy}
+      GROQ_API_KEY: ${GROQ_API_KEY:-dummy}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    depends_on: [backend]
+    ports: ["3000:3000"]
+    environment:
+      PORT: 3000
+      BACKEND_ORIGIN: http://backend:8080
+volumes:
+  idk_database:
