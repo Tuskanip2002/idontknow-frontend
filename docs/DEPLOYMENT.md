@@ -1,22 +1,22 @@
 # Despliegue del equipo
 
 ## Estado
-Hay una plantilla preparada, pero no se han creado servicios, aceptado planes de pago, publicado aplicaciones ni subido commits. La URL histórica de Render del README original no respondió en la comprobación de 20 segundos; esto no confirma que el servicio haya sido eliminado.
+El backend, la web y la app móvil están en [idontknow-frontend](https://github.com/Tuskanip2002/idontknow-frontend), en la rama `master`. Falta importar el Blueprint en Render y publicar el APK mediante EAS.
 
 Para el puntaje completo hacen falta URLs verificables de la web, API y distribución móvil, PostgreSQL administrado, HTTPS y autenticación de extremo a extremo. Un localhost o un bundle exportado no cumple esa parte.
 
 ## Opción preparada: Render + EAS
-`render.yaml` define dos servicios Docker y PostgreSQL administrado. Declara planes de pago para evitar suspensión del servidor durante la demo: el equipo debe revisar precios vigentes y aprobar el presupuesto antes de crear recursos. Los nombres de servicios deben ajustarse si ya están ocupados. No activar el perfil demo en producción.
+`render.yaml` define dos servicios Docker y PostgreSQL administrado con `plan: free`. Los servicios comparten 750 horas mensuales por workspace, se suspenden tras 15 minutos sin tráfico y pueden tardar cerca de un minuto en despertar. PostgreSQL caduca a los 30 días. Antes de la exposición, abrir la web y comprobar el endpoint de estado de la API. Medir también el arranque en frío por separado. Los nombres de servicios deben ajustarse si ya están ocupados. No activar el perfil demo en producción.
 
-1. Decidir el repositorio de entrega del monorepo. Revisar y confirmar commits y push por separado antes de subir.
+1. Conectar la cuenta de Render con GitHub y conceder acceso al repositorio privado `Tuskanip2002/idontknow-frontend`. Seleccionar la rama `master`.
 2. En la cuenta Render del equipo, importar el Blueprint. Revisar recursos, región y precios.
-3. Establecer los secretos en la interfaz de Render: Groq, SMTP y administrador inicial. ADMIN_PASSWORD requiere 12 caracteres, mayúscula, minúscula y número.
+3. Establecer los secretos de Groq y del administrador inicial en la interfaz de Render. ADMIN_PASSWORD requiere 12 caracteres, mayúscula, minúscula y número. El plan gratuito bloquea los puertos SMTP 25, 465 y 587. Dejar las variables de correo sin configurar hasta integrar un proveedor por HTTPS.
 4. Configurar BACKEND_ORIGIN de la web con el **origen HTTPS** de la API, sin `/api/v1` ni slash final. El servidor añade la ruta solicitada.
 5. Configurar CORS_ALLOWED_ORIGINS del backend con el origen HTTPS exacto de la web, sin ruta. Varios orígenes se separan con comas.
 6. El Blueprint suministra DB_HOST/DB_PORT/DB_NAME/DB_USERNAME/DB_PASSWORD desde el servicio administrado. La propiedad de Spring construye una URL JDBC válida; también se puede proporcionar DB_URL explícitamente.
 7. JWT_SECRET se genera en Render. No copiar el secreto de desarrollo. El perfil prod activa la cookie Secure y desactiva logs SQL.
 8. Desplegar manualmente después de cada revisión autorizada. autoDeployTrigger está apagado en la plantilla.
-9. Comprobar `https://API/api/v1/estado`, categorías, portada y dos listados. Completar credenciales de Groq/SMTP antes de validar correos y sincronización.
+9. Comprobar `https://API/api/v1/estado`, categorías, portada y dos listados. Completar las credenciales de Groq antes de validar la sincronización. Validar el correo cuando tenga un transporte compatible con el hosting.
 10. Crear usuarios por la interfaz, preparar suficientes mercados y ediciones reales y comprobar las métricas. No presentar datos demo como noticias reales.
 
 El backend sincroniza diariamente a las 6 a.m. de Lima. Una instalación nueva no tiene historial; se necesitan observaciones de varios días para mostrar cambios reales. Para una demo académica local se puede usar el perfil demo, claramente identificado. En producción no se deben fabricar observaciones.
@@ -41,5 +41,6 @@ El script registra tres lecturas por endpoint y su promedio. La rúbrica exige u
 
 ## Fuentes técnicas
 - [Blueprints de Render](https://render.com/docs/blueprint-spec)
+- [Límites de Render Free](https://render.com/docs/free)
 - [Distribución con EAS Build](https://docs.expo.dev/build/introduction/)
 - [Variables de entorno de Expo](https://docs.expo.dev/guides/environment-variables/)

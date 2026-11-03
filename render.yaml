@@ -2,7 +2,7 @@ services:
   - type: web
     name: idontknow-api
     runtime: docker
-    plan: starter
+    plan: free
     region: oregon
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
@@ -38,7 +38,7 @@ services:
   - type: web
     name: idontknow-web
     runtime: docker
-    plan: starter
+    plan: free
     region: oregon
     dockerfilePath: ./Dockerfile.web
     dockerContext: .
@@ -52,5 +52,5 @@ databases:
     databaseName: idontknowdb
     user: idontknow
     region: oregon
-    plan: basic-256mb
+    plan: free
     ipAllowList: []
