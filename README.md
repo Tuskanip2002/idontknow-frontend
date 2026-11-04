@@ -3,6 +3,16 @@ Un diario donde cada noticia es una probabilidad. Proyecto CS2031 DBP, UTEC, 202
 
 Repositorio del proyecto completo: [idontknow-frontend](https://github.com/Tuskanip2002/idontknow-frontend).
 
+## Enlaces de entrega
+
+- [Web pública](https://18-223-255-39.sslip.io/)
+- [Estado de la API](https://18-223-255-39.sslip.io/api/v1/estado)
+- [APK de Android en Expo](https://expo.dev/accounts/tuskanips-team/projects/idontknow-dbp/builds/dcb8354c-bf62-45cd-b983-68365e6959c6)
+
+La web y el backend se ejecutan en Amazon EC2 con Docker Compose. Caddy sirve la web y la API por HTTPS en el mismo dominio. El backend guarda los datos en PostgreSQL privado en Amazon RDS. La configuración de los contenedores está en [compose.aws.yaml](compose.aws.yaml).
+
+Para probar el APK, abre el enlace de Expo desde un Android, instala la app e inicia sesión con una cuenta de lector de la web pública. Está pendiente verificar en un teléfono físico que la sesión se conserve al cerrar y reabrir la app, que la cámara abra un titular desde su QR y que el acelerómetro permita recorrer titulares. En iPhone se puede usar la web desde Safari.
+
 ## Equipo
 - Rance Blondet Borja
 - Hideki Aldo Kunigami Chia
@@ -49,7 +59,7 @@ El perfil `demo` usa una base H2 persistente independiente en `backend/.local/`.
 
 Estas cuentas se crean únicamente con el perfil `demo`. No se deben usar como credenciales de producción.
 
-## App móvil
+## Desarrollo móvil local
 1. Copia `mobile/.env.example` a `mobile/.env`.
 2. Cambia `EXPO_PUBLIC_API_URL` por la IP de tu computadora: `http://TU_IP:8080/api/v1`. El teléfono y la computadora deben compartir red. En un teléfono, `localhost` significa el teléfono.
 3. Configura `EXPO_PUBLIC_WEB_URL` con el origen exacto de la web. El lector QR verifica ese origen.
@@ -86,4 +96,4 @@ npx expo export --platform android
 Consulta [despliegue](docs/DEPLOYMENT.md), [rúbrica](docs/RUBRIC.md), [arquitectura](docs/ARCHITECTURE.md) y [guion de exposición](docs/PRESENTATION.md). La presentación editable está en output/presentation/.
 
 ## Control de versiones
-No se crearon commits ni se hizo push. La configuración CI incluida correrá cuando el equipo autorice subir el código. Antes de cualquier commit se debe revisar el conjunto de archivos y el mensaje propuesto; el push requiere una confirmación explícita independiente.
+El código y la configuración de compilación de Expo están en la rama `master` de GitHub. El APK se distribuye desde Expo. Antes de crear un commit o hacer push, revisa los archivos y el mensaje propuesto y solicita confirmación explícita.
