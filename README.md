@@ -11,7 +11,9 @@ Repositorio del proyecto completo: [idontknow-frontend](https://github.com/Tuska
 
 La web y el backend se ejecutan en Amazon EC2 con Docker Compose. Caddy sirve la web y la API por HTTPS en el mismo dominio. El backend guarda los datos en PostgreSQL privado en Amazon RDS. La configuración de los contenedores está en [compose.aws.yaml](compose.aws.yaml).
 
-Para probar el APK, abre el enlace de Expo desde un Android, instala la app e inicia sesión con una cuenta de lector de la web pública. Está pendiente verificar en un teléfono físico que la sesión se conserve al cerrar y reabrir la app, que la cámara abra un titular desde su QR y que el acelerómetro permita recorrer titulares. En iPhone se puede usar la web desde Safari.
+Para usar la web, crea una cuenta de lector desde [Registrarse](https://18-223-255-39.sslip.io/registro). En Android, instala el APK desde Expo e inicia sesión con esa misma cuenta. En iPhone, abre la web en Safari.
+
+La compilación del APK está lista. Queda pendiente probar en un Android físico el inicio de sesión, la persistencia al reabrir la app, el escáner QR y la lectura por inclinación.
 
 ## Equipo
 - Rance Blondet Borja
@@ -28,7 +30,7 @@ Para probar el APK, abre el enlace de Expo desde un Android, instala la app e in
 
 El backend original procede de [jg42-2/idontknow-backend](https://github.com/jg42-2/idontknow-backend), revisión `b3e9e13683529129ab4a8f2548480acba82ab12b`. Se conserva su licencia MIT. Este directorio es una copia de fuentes, no un clon con el historial Git del repositorio remoto.
 
-## Inicio local sin cuentas cloud
+## Desarrollo web local (opcional)
 Requisitos: Node.js 22 o superior y Java 21. Desde esta carpeta:
 
 ```powershell
@@ -50,14 +52,7 @@ npm run dev:web
 
 Abre la URL que imprime Vite, normalmente http://127.0.0.1:5173. El backend estará en http://localhost:8080/api/v1.
 
-El perfil `demo` usa una base H2 persistente independiente en `backend/.local/`. Crea 24 mercados, 16 ediciones y dos cuentas de demostración. No modifica PostgreSQL ni consulta Polymarket o correo. Una franja identifica los datos de ejemplo en las interfaces: **no son probabilidades reales**.
-
-| Cuenta local | Contraseña local | Rol |
-| --- | --- | --- |
-| lector@demo.local | LectorDemo123 | USER |
-| admin@demo.local | AdminDemo123 | ADMIN |
-
-Estas cuentas se crean únicamente con el perfil `demo`. No se deben usar como credenciales de producción.
+El perfil `demo` carga datos de ejemplo en una base H2 bajo `backend/.local/`. Usa el registro de la web local para crear una cuenta de desarrollo. Para probar el rol de administrador local, consulta las cuentas que inicializa [DemoData.java](backend/src/main/java/utec/idontknowbackend/config/DemoData.java). La web pública usa su propia base en AWS.
 
 ## Desarrollo móvil local
 1. Copia `mobile/.env.example` a `mobile/.env`.
@@ -68,7 +63,7 @@ Estas cuentas se crean únicamente con el perfil `demo`. No se deben usar como c
 
 La cámara abre titulares/mercados por QR. El acelerómetro permite pasar los titulares con una inclinación lateral, activada voluntariamente. Se mantienen el enlace manual y los botones Anterior/Siguiente como alternativas.
 
-## PostgreSQL y Docker
+## PostgreSQL y Docker local (opcional)
 Copia `.env.example` a `.env` y completa los valores. Genera un secreto local con:
 
 ```powershell
@@ -94,6 +89,3 @@ npx expo export --platform android
 `npm run build` genera la web; `expo export` comprueba el bundle Android, **no crea un APK ni publica la app**. Las pruebas Java incluyen HTTP real con una base aislada. No prueban la infraestructura PostgreSQL de producción ni sensores físicos.
 
 Consulta [despliegue](docs/DEPLOYMENT.md), [rúbrica](docs/RUBRIC.md), [arquitectura](docs/ARCHITECTURE.md) y [guion de exposición](docs/PRESENTATION.md). La presentación editable está en output/presentation/.
-
-## Control de versiones
-El código y la configuración de compilación de Expo están en la rama `master` de GitHub. El APK se distribuye desde Expo. Antes de crear un commit o hacer push, revisa los archivos y el mensaje propuesto y solicita confirmación explícita.
