@@ -14,7 +14,10 @@
       }
     },
     "android": {
-      "package": "com.idontknow.diario"
+      "package": "com.idontknow.diario",
+      "permissions": [
+        "android.permission.CAMERA"
+      ]
     },
     "plugins": [
       [
@@ -28,6 +31,12 @@
     ],
     "experiments": {
       "typedRoutes": false
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "0a32d47f-1514-4f21-ba1f-0cfa0188ea82"
+      }
+    },
+    "owner": "tuskanips-team"
   }
 }

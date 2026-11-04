@@ -6,6 +6,10 @@
   "build": {
     "preview": {
       "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://18-223-255-39.sslip.io/api/v1",
+        "EXPO_PUBLIC_WEB_URL": "https://18-223-255-39.sslip.io"
+      },
       "android": {
         "buildType": "apk"
       }
