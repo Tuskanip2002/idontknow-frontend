@@ -20,7 +20,7 @@ public class GroqTraduccionClient {
 
     public GroqTraduccionClient(@Value("${groq.api.key}") String apiKey,
                                 @Value("${groq.api.url:https://api.groq.com/openai/v1}") String baseUrl,
-                                @Value("${groq.model:llama-3.3-70b-versatile}") String modelo) {
+                                @Value("${groq.model:openai/gpt-oss-20b}") String modelo) {
         this.apiKey = apiKey;
         this.modelo = modelo;
         this.restClient = RestClient.builder().baseUrl(baseUrl).build();
