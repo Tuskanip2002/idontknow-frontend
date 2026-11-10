@@ -1,6 +1,6 @@
 # Cobertura y evidencias de la rúbrica
 
-Estado al 1 de noviembre de 2026. Implementado no equivale a validado en producción.
+Revisión al 10 de noviembre de 2026. AWS responde por HTTPS, con 103 mercados y 7 ediciones en la última consulta. La portada existe. Se detectaron titulares en inglés y categorías vacías en algunos mercados. Las correcciones locales requieren despliegue y una clave Groq válida para comprobar la traducción. El APK está disponible en Expo y falta su prueba en un teléfono Android.
 
 | Criterio | Implementación | Evidencia / pendiente |
 | --- | --- | --- |
@@ -16,7 +16,7 @@ Estado al 1 de noviembre de 2026. Implementado no equivale a validado en producc
 | UI/UX: experiencia .5 | Labels, foco visible, skip link, búsqueda debounce, filtros, confirmación destructiva | Probar teclado y filtros finales |
 | UI/UX: vistas .5 | Portada, registro, login, mercados, detalle, archivo, edición, guardados, perfil, temas, admin, acerca | Backend real, sin mocks funcionales en frontend |
 | UI/UX: paginación .5 | Mercados y ediciones, controles/números/tamaños 10/25/50/100, total y query params | Prueba HTTP de páginas y prueba visual en mercados |
-| Deployment 3 | Dockerfiles, Compose, plantilla Render, EAS profiles, guía y medición de latencia | **Pendiente:** cuentas, presupuesto, Git autorizado, servicios públicos, DB administrada, APK/Expo público y comprobación HTTPS |
+| Deployment 3 | EC2 con Caddy y Compose, RDS privado, APK distribuido por Expo | HTTPS y login comprobados anteriormente; repetir latencia con datos, probar APK físico y aplicar correcciones de configuración |
 | Exposición 5 individual | Guion y preguntas técnicas de estudio | Ensayar y demostrar dominio individual; no se garantiza una nota por entregar código |
 
 ## Comprobaciones registradas

@@ -1,11 +1,19 @@
 # Despliegue del equipo
 
 ## Estado
-El backend, la web y la app móvil están en [idontknow-frontend](https://github.com/Tuskanip2002/idontknow-frontend), en la rama `master`. Falta importar el Blueprint en Render y publicar el APK mediante EAS.
+El backend, la web y la app móvil están en [idontknow-frontend](https://github.com/Tuskanip2002/idontknow-frontend), en la rama `master`. La entrega usa EC2 con Caddy y Docker Compose, PostgreSQL privado en RDS y un APK distribuido por Expo. Los enlaces están en el README.
+
+## AWS actual
+
+Usar `compose.aws.yaml` desde EC2. Configurar `.env` con `RDS_HOST`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET` y `WEB_ORIGIN`. Descargar el certificado oficial de RDS como `rds-ca.pem`. Caddy apunta a `127.0.0.1:3000` y publica HTTPS. RDS permite TCP 5432 desde el grupo de seguridad de EC2.
+
+Configurar `GROQ_API_KEY` para traducir titulares. Para correo, configurar `MAIL_USERNAME` y `MAIL_APP_PASSWORD`, y activar `EMAIL_ENABLED=true` después de validar las credenciales SMTP. Para crear un administrador inicial, configurar `ADMIN_EMAIL` y `ADMIN_PASSWORD`. Tras editar las variables, ejecutar `sudo docker compose -f compose.aws.yaml up -d --build` y comprobar los logs. La sincronización se ejecuta a las 6 a. m. de Lima. Los titulares de una edición existente que conservaron el texto original reintentan la traducción al procesarse otra vez.
+
+Los secretos se guardan en el servidor. La clave privada SSH, `.env` y el estado de la base de datos deben excluirse de Git.
 
 Para el puntaje completo hacen falta URLs verificables de la web, API y distribución móvil, PostgreSQL administrado, HTTPS y autenticación de extremo a extremo. Un localhost o un bundle exportado no cumple esa parte.
 
-## Opción preparada: Render + EAS
+## Alternativa Render + EAS
 `render.yaml` define dos servicios Docker y PostgreSQL administrado con `plan: free`. Los servicios comparten 750 horas mensuales por workspace, se suspenden tras 15 minutos sin tráfico y pueden tardar cerca de un minuto en despertar. PostgreSQL caduca a los 30 días. Antes de la exposición, abrir la web y comprobar el endpoint de estado de la API. Medir también el arranque en frío por separado. Los nombres de servicios deben ajustarse si ya están ocupados. No activar el perfil demo en producción.
 
 1. Conectar la cuenta de Render con GitHub y conceder acceso al repositorio privado `Tuskanip2002/idontknow-frontend`. Seleccionar la rama `master`.

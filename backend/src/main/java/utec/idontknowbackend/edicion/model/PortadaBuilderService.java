@@ -59,6 +59,9 @@ public class PortadaBuilderService {
 
     // si el job vuelve a correr el mismo día no se duplica el titular, solo se actualizan los números
     private void actualizarTitular(Titular titular, MovimientoMercado mov) {
+        if (mov.mercado().getPreguntaOriginal().equals(titular.getTextoEspanol())) {
+            titular.setTextoEspanol(groqClient.traducir(mov.mercado().getPreguntaOriginal(), mov.nueva()));
+        }
         titular.setProbabilidadHoy(mov.nueva());
         titular.setCambioDesdeAyer(mov.nueva().subtract(mov.anterior()));
         titular.setPuntaje(calcularPuntaje(mov));
