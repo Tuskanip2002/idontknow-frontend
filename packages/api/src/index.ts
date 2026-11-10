@@ -27,6 +27,11 @@ export function createApi(client: ReturnType<typeof createClient>["client"]) {
       get<Page<Market>>("/mercados", signal, query),
     market: (id: number, signal?: AbortSignal) =>
       get<MarketDetail>("/mercados/" + id, signal),
+    translate: (id: number, signal?: AbortSignal) =>
+      get<{ original: string; espanol: string }>(
+        "/mercados/" + id + "/traduccion",
+        signal,
+      ),
     edition: (date = "hoy", signal?: AbortSignal) =>
       get<Edition>("/ediciones/" + date, signal),
     editions: (query: PageQuery, signal?: AbortSignal) =>

@@ -48,9 +48,8 @@ public class PolymarketIngestService {
         Mercado mercado = mercadoRepository.findByPolymarketId(dto.getId())
                 .orElseGet(() -> crearMercado(dto, nuevaProbabilidad));
 
-        if (mercado.getCategorias().isEmpty()) {
-            mercado.getCategorias().addAll(clasificador.clasificar(mercado.getPreguntaOriginal()));
-        }
+        mercado.getCategorias().addAll(clasificador.clasificar(
+                mercado.getPreguntaOriginal(), dto.getCategoriaFuente()));
 
         // se compara contra la última foto de un día anterior; si es nuevo no hay cambio
         BigDecimal anterior = snapshotService.probabilidadAnterior(mercado.getId()).orElse(nuevaProbabilidad);

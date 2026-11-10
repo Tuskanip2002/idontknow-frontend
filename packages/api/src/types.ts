@@ -27,6 +27,7 @@ export interface Headline {
 }
 export interface HeadlineDetail {
   id: number;
+  mercadoId: number;
   textoEspanol: string;
   probabilidadHoy: number;
   cambioDesdeAyer: number;

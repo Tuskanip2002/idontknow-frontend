@@ -25,6 +25,14 @@ public class CategoriaClasificador {
 
     private final CategoriaRepository categoriaRepository;
 
+    public Set<Categoria> clasificar(String pregunta, String categoriaFuente) {
+        Set<Categoria> resultado = clasificar(pregunta);
+        if (categoriaFuente != null) {
+            categoriaRepository.findByNombre(categoriaFuente).ifPresent(resultado::add);
+        }
+        return resultado;
+    }
+
     public Set<Categoria> clasificar(String pregunta) {
         Set<Categoria> resultado = new HashSet<>();
         if (pregunta == null) return resultado;

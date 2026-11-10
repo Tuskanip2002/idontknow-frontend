@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import utec.idontknowbackend.mercado.DTO.MercadoDetailDTO;
 import utec.idontknowbackend.mercado.DTO.MercadoResponseDTO;
 import utec.idontknowbackend.mercado.model.MercadoService;
+import utec.idontknowbackend.mercado.model.TraduccionService;
 
 @RestController
 @RequestMapping("/mercados")
@@ -15,6 +16,12 @@ import utec.idontknowbackend.mercado.model.MercadoService;
 public class MercadoController {
 
     private final MercadoService mercadoService;
+    private final TraduccionService traducciones;
+
+    @GetMapping("/{id}/traduccion")
+    public ResponseEntity<TraduccionService.Traduccion> traducir(@PathVariable Long id) {
+        return ResponseEntity.ok(traducciones.traducir(id));
+    }
 
     @GetMapping
     public ResponseEntity<Page<MercadoResponseDTO>> getAll(

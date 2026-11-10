@@ -23,6 +23,7 @@ public class TitularService {
                 .orElseThrow(() -> new ResourceNotFoundException("Titular no encontrado"));
 
         TitularDetailDTO dto = modelMapper.map(titular, TitularDetailDTO.class);
+        dto.setMercadoId(titular.getMercado().getId());
         dto.setFechaResolucionEstimada(titular.getMercado().getFechaResolucionEstimada());
         dto.setHistorial(
                 snapshotRepository.findByMercadoIdOrderByFechaAsc(titular.getMercado().getId()).stream()

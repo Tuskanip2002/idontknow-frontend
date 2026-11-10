@@ -19,6 +19,7 @@ public class PolymarketMarketDTO {
 
     private String id;
     private String question;
+    private String categoriaFuente;
     private String outcomes;       // JSON-encoded string: "[\"Yes\",\"No\"]"
     private String outcomePrices;  // JSON-encoded string: "[\"0.62\",\"0.38\"]"
     private String endDate;        // ISO-8601

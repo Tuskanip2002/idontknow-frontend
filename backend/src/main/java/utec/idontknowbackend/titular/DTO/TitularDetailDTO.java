@@ -19,6 +19,7 @@ import java.util.List;
 public class TitularDetailDTO {
 
     private Long id;
+    private Long mercadoId;
     private String textoEspanol;
     private BigDecimal probabilidadHoy;
     private BigDecimal cambioDesdeAyer;

@@ -7,7 +7,6 @@ import { api } from "../services/api";
 import { useQuery } from "../hooks/useQuery";
 import { useAuth, useToast } from "../contexts/AppContext";
 import {
-  PageHeading,
   Probability,
   ChangeBadge,
   QueryState,
@@ -15,6 +14,7 @@ import {
   Dialog,
 } from "../components/ui";
 import HistoryChart from "../components/HistoryChart";
+import TranslatedHeading from "../components/TranslatedHeading";
 function ShareDialog({ onClose }: { onClose: () => void }) {
   const [src, setSrc] = useState("");
   const [error, setError] = useState(false);
@@ -92,7 +92,11 @@ export default function Detail({ kind }: { kind: "headline" | "market" }) {
       <QueryState query={query}>
         {data && (
           <>
-            <PageHeading
+            <TranslatedHeading
+              key={kind + id}
+              marketId={
+                data.kind === "market" ? data.value.id : data.value.mercadoId
+              }
               eyebrow={
                 kind === "market"
                   ? "MERCADO EN SEGUIMIENTO"

@@ -38,6 +38,9 @@ public class Mercado {
     @Column(nullable = false, length = 500)
     private String preguntaOriginal; // texto en inglés tal cual viene de Polymarket
 
+    @Column(length = 1000)
+    private String preguntaEspanol;
+
     @DecimalMin("0.0")
     @DecimalMax("1.0")
     @Column(nullable = false)
