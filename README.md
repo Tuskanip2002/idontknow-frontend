@@ -15,6 +15,8 @@ Para usar la web, crea una cuenta de lector desde [Registrarse](https://18-223-2
 
 La compilación del APK está lista. Queda pendiente probar en un Android físico el inicio de sesión, la persistencia al reabrir la app, el escáner QR y la lectura por inclinación.
 
+La web pública fue revisada por Rance. Las cuatro categorías tienen mercados y el detalle permite leer una versión en español. Consulta las [evidencias de entrega](docs/EVIDENCIAS.md) para ver las comprobaciones y mediciones de la API. La prueba Android está asignada a los compañeros del equipo. El envío de correo sigue pendiente de configuración SMTP.
+
 ## Equipo
 - Rance Blondet Borja
 - Hideki Aldo Kunigami Chia

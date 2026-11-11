@@ -1,6 +1,6 @@
 # Cobertura y evidencias de la rúbrica
 
-Revisión al 10 de noviembre de 2026. AWS responde por HTTPS, con 103 mercados y 7 ediciones en la última consulta. La portada existe. Se detectaron titulares en inglés y categorías vacías en algunos mercados. Las correcciones locales requieren despliegue y una clave Groq válida para comprobar la traducción. El APK está disponible en Expo y falta su prueba en un teléfono Android.
+Revisión al 10 de noviembre de 2026. AWS responde por HTTPS y las cuatro categorías tienen mercados reales. La traducción al español se comprobó por la API pública después de configurar un modelo Groq disponible. Rance confirmó la revisión funcional del sitio web. El APK está disponible en Expo y la prueba física en Android queda a cargo de los compañeros. Los resultados medidos y las limitaciones se registran en [Evidencias de entrega](EVIDENCIAS.md).
 
 | Criterio | Implementación | Evidencia / pendiente |
 | --- | --- | --- |
@@ -8,7 +8,7 @@ Revisión al 10 de noviembre de 2026. AWS responde por HTTPS, con 103 mercados y
 | Mobile: arquitectura 1 | screens/components/services/hooks/contexts, React Navigation, componentes funcionales | Código organizado; contratos TypeScript |
 | Mobile: sensores/API 1.5 | Cámara QR + acelerómetro para lectura por inclinación; Gamma API complementaria | Permisos, botones/enlace alternativos y limpieza; validar ambos sensores y API con un mercado real en dispositivo |
 | Mobile: errores 1 | QueryState, carga, mensajes amigables, retry GET, validaciones, bloqueo de submit | Revisar permisos denegados y modo avión en teléfono |
-| Web: integración 2 | Axios centralizado, JWT en memoria, refresh HttpOnly, AbortController | Pruebas de cliente + backend HTTP; comprobar HTTPS/CORS público |
+| Web: integración 2 | Axios centralizado, JWT en memoria, refresh HttpOnly, AbortController | Registro, login y renovación comprobados por HTTPS; revisión web confirmada por Rance |
 | Web: arquitectura 1 | Más de 10 componentes reutilizables, custom hooks, contextos, props tipadas | Compilación y comprobación TypeScript |
 | Web: routing 1 | React Router, :id/:date, filtros/page/size/sort en URL, Protected, lazy/Suspense, 404 | Flujo de login y paginación revisado en navegador |
 | Web: errores 1 | ErrorBoundary, mensajes por HTTP, loading, formularios, toasts, retry seguro | Pruebas del cliente y gráfico; ampliar QA manual |
@@ -16,16 +16,18 @@ Revisión al 10 de noviembre de 2026. AWS responde por HTTPS, con 103 mercados y
 | UI/UX: experiencia .5 | Labels, foco visible, skip link, búsqueda debounce, filtros, confirmación destructiva | Probar teclado y filtros finales |
 | UI/UX: vistas .5 | Portada, registro, login, mercados, detalle, archivo, edición, guardados, perfil, temas, admin, acerca | Backend real, sin mocks funcionales en frontend |
 | UI/UX: paginación .5 | Mercados y ediciones, controles/números/tamaños 10/25/50/100, total y query params | Prueba HTTP de páginas y prueba visual en mercados |
-| Deployment 3 | EC2 con Caddy y Compose, RDS privado, APK distribuido por Expo | HTTPS y login comprobados anteriormente; repetir latencia con datos, probar APK físico y aplicar correcciones de configuración |
+| Deployment 3 | EC2 con Caddy y Compose, RDS privado, APK distribuido por Expo | Cinco endpoints respondieron 200 con medias inferiores a 500 ms en la medición registrada; pendiente validación del APK físico |
 | Exposición 5 individual | Guion y preguntas técnicas de estudio | Ensayar y demostrar dominio individual; no se garantiza una nota por entregar código |
 
 ## Comprobaciones registradas
-- Backend: 28 pruebas aprobadas en H2, incluidas 6 pruebas HTTP de integración.
+- Backend: última ejecución completa de 32 pruebas aprobadas, incluidas 6 HTTP de integración. Prueba adicional de respuesta Groq aprobada en ejecución dirigida.
 - Cliente compartido: 5 pruebas aprobadas.
 - Web: 5 pruebas aprobadas: gráfico y servidor de producción (rutas, archivos y proxy).
 - TypeScript: web, móvil y API compartida.
 - Web: build de producción aprobado.
 - Android: bundle Hermes final exportado con React Navigation; dependencias compatibles con SDK 54 comprobadas sin conexión.
+- Android: APK generado por EAS y enlazado desde el README; pendiente prueba física por el equipo.
+- Correo: funcionalidad de bienvenida y alertas implementada; desactivada en producción hasta configurar y validar SMTP.
 - Navegador: login, guardado persistente, segunda página de mercados, detalle con historial, QR y portada compilada.
 
 ## Prueba manual de aceptación antes de entregar

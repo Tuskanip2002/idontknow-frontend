@@ -9,6 +9,8 @@ Usar `compose.aws.yaml` desde EC2. Configurar `.env` con `RDS_HOST`, `DB_USERNAM
 
 Configurar `GROQ_API_KEY` para traducir titulares. Para correo, configurar `MAIL_USERNAME` y `MAIL_APP_PASSWORD`, y activar `EMAIL_ENABLED=true` después de validar las credenciales SMTP. Para crear un administrador inicial, configurar `ADMIN_EMAIL` y `ADMIN_PASSWORD`. Tras editar las variables, ejecutar `sudo docker compose -f compose.aws.yaml up -d --build` y comprobar los logs. La sincronización se ejecuta a las 6 a. m. de Lima. Los titulares de una edición existente que conservaron el texto original reintentan la traducción al procesarse otra vez.
 
+El modelo predeterminado actual es `openai/gpt-oss-20b`, verificado con la cuenta de Groq del equipo. Puede cambiarse mediante `GROQ_MODEL`. El modelo anterior devolvió `model_not_found`. La sincronización consulta hasta 50 mercados por cada tema de Polymarket (política, economía, deportes y tecnología) y elimina duplicados por identificador. La traducción solicitada desde el detalle se almacena en PostgreSQL para reutilizarla.
+
 Los secretos se guardan en el servidor. La clave privada SSH, `.env` y el estado de la base de datos deben excluirse de Git.
 
 Para el puntaje completo hacen falta URLs verificables de la web, API y distribución móvil, PostgreSQL administrado, HTTPS y autenticación de extremo a extremo. Un localhost o un bundle exportado no cumple esa parte.
@@ -32,8 +34,8 @@ El backend sincroniza diariamente a las 6 a.m. de Lima. Una instalación nueva n
 ## Publicación móvil
 1. El equipo inicia sesión en su cuenta Expo mediante EAS CLI.
 2. En `mobile/`, configurar EXPO_PUBLIC_API_URL con `https://API/api/v1` y EXPO_PUBLIC_WEB_URL con el origen HTTPS exacto de la web.
-3. Ejecutar `npx eas-cli@latest init` y guardar el projectId que Expo asigne. Esto requiere la cuenta del equipo; no inventar un ID.
-4. Crear las variables para el entorno de build en EAS. Las variables EXPO_PUBLIC se incluyen en el binario: nunca colocar secretos ahí.
+3. El proyecto actual ya está vinculado a `tuskanips-team/idontknow-dbp`; el projectId está en `mobile/app.json`. Usar una cuenta Expo con acceso al proyecto.
+4. Las URLs públicas del perfil `preview` están en `mobile/eas.json`. Las variables EXPO_PUBLIC se incluyen en el binario: nunca colocar secretos ahí.
 5. Ejecutar `npx eas-cli@latest build --platform android --profile preview`. El perfil incluido genera un APK para distribución interna.
 6. Instalar el APK en un teléfono físico, verificar cámara/acelerómetro/API/secure session y compartir la URL del build con el docente.
 7. La exportación local `npx expo export --platform android` sirve para validar el bundle, pero no crea el APK ni la URL de distribución.
