@@ -2,6 +2,7 @@ package utec.idontknowbackend.user.model;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,9 @@ import utec.idontknowbackend.user.DTO.UsuarioResponseDTO;
 import utec.idontknowbackend.user.DTO.UsuarioUpdateRequestDTO;
 import utec.idontknowbackend.user.infrastructure.UsuarioRepository;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+
 @org.springframework.transaction.annotation.Transactional
 @Service
 @RequiredArgsConstructor
@@ -22,6 +26,13 @@ public class UsuarioService {
     private final CategoriaRepository categoriaRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
+
+    // la suscripción es simulada (sin pasarela de pago); se puede apagar en producción
+    @Value("${suscripcion.demo.habilitada:true}")
+    private boolean suscripcionDemoHabilitada;
+
+    @Value("${suscripcion.demo.dias:30}")
+    private int diasSuscripcionDemo;
 
     private Usuario getUsuarioAutenticado() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -64,6 +75,26 @@ public class UsuarioService {
         return toResponseDTO(usuarioRepository.save(usuario));
     }
 
+    public UsuarioResponseDTO activarSuscripcionDemo() {
+        if (!suscripcionDemoHabilitada) {
+            throw new InvalidOperationException("La suscripción de demostración no está disponible");
+        }
+        Usuario usuario = getUsuarioAutenticado();
+        LocalDate hoy = LocalDate.now(ZoneId.of("America/Lima"));
+        // si ya es premium, se extiende desde su fecha de vencimiento en vez de perder días
+        LocalDate desde = usuario.esPremium() ? usuario.getPremiumHasta() : hoy;
+        usuario.setPlan(Plan.PREMIUM);
+        usuario.setPremiumHasta(desde.plusDays(diasSuscripcionDemo));
+        return toResponseDTO(usuarioRepository.save(usuario));
+    }
+
+    public UsuarioResponseDTO cancelarSuscripcion() {
+        Usuario usuario = getUsuarioAutenticado();
+        usuario.setPlan(Plan.FREE);
+        usuario.setPremiumHasta(null);
+        return toResponseDTO(usuarioRepository.save(usuario));
+    }
+
     private UsuarioResponseDTO toResponseDTO(Usuario usuario) {
         UsuarioResponseDTO dto = modelMapper.map(usuario, UsuarioResponseDTO.class);
         dto.setCategoriasSeguidas(
@@ -71,6 +102,9 @@ public class UsuarioService {
                         .map(Categoria::getNombre)
                         .toList()
         );
+        boolean premium = usuario.esPremium();
+        dto.setPlan(premium ? Plan.PREMIUM.name() : Plan.FREE.name());
+        dto.setPremiumHasta(premium ? usuario.getPremiumHasta() : null);
         return dto;
     }
 }

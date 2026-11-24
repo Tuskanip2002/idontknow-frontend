@@ -53,6 +53,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/categorias/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/categorias/**").hasRole("ADMIN")
 
+                        // regenerar explicaciones llama a servicios externos: solo ADMIN
+                        .requestMatchers(HttpMethod.POST, "/explicaciones/**").hasRole("ADMIN")
+
                         // guardar titulares y seguir temas requiere estar logueado
                         .requestMatchers("/guardados/**").authenticated()
                         .requestMatchers("/usuarios/**").authenticated()

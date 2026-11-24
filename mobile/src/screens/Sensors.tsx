@@ -1,7 +1,7 @@
 import { useIsFocused } from "@react-navigation/native";
 import { useNavigation } from "../navigation";
 import { useRef, useState } from "react";
-import { View, Text, Linking, AppState } from "react-native";
+import { View, Text, Linking, AppState, StyleSheet } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { parseNewsLink } from "@idk/api";
 import { api, webOrigin } from "../services/api";
@@ -52,18 +52,13 @@ export function ScanScreen() {
         eyebrow="CONTINÚA TU LECTURA"
         title="Escanea una noticia"
         description="Abre el QR desde el detalle de una noticia en la web."
-      />{" "}
+      />
       {permission?.granted && active && focused ? (
-        <View
-          style={{
-            height: 320,
-            borderRadius: 10,
-            overflow: "hidden",
-            backgroundColor: colors.ink,
-          }}
-        >
+        // sin borderRadius ni overflow: "hidden": en Android ese recorte dejaba la vista
+        // previa sin dibujar (solo se veía el fondo verde oscuro del contenedor)
+        <View style={{ height: 320, backgroundColor: "#000" }}>
           <CameraView
-            style={{ flex: 1 }}
+            style={StyleSheet.absoluteFill}
             facing="back"
             barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
             onBarcodeScanned={({ data }) => open(data)}

@@ -35,4 +35,15 @@ public class UsuarioController {
         usuarioService.dejarDeSeguirCategoria(categoriaId);
         return ResponseEntity.noContent().build();
     }
+
+    // suscripción simulada: activa Premium por 30 días sin cobrar (modo demostración)
+    @PostMapping("/me/suscripcion")
+    public ResponseEntity<UsuarioResponseDTO> activarSuscripcion() {
+        return ResponseEntity.ok(usuarioService.activarSuscripcionDemo());
+    }
+
+    @DeleteMapping("/me/suscripcion")
+    public ResponseEntity<UsuarioResponseDTO> cancelarSuscripcion() {
+        return ResponseEntity.ok(usuarioService.cancelarSuscripcion());
+    }
 }

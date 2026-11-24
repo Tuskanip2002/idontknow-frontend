@@ -1,10 +1,18 @@
 import { projectTeam } from "@idk/api";
 import { useNavigation } from "../navigation";
 import { useState, useEffect } from "react";
-import { View, Text, ScrollView, Pressable, Share } from "react-native";
-import { dateLabel, categoryLabel, type Category } from "@idk/api";
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  Share,
+  Linking,
+} from "react-native";
+import { dateLabel, categoryLabel, isPremium, type Category } from "@idk/api";
 import { api, externalMarket, webOrigin } from "../services/api";
-import { notify } from "../contexts/AppContext";
+import { askToSubscribe } from "../services/premium";
+import { notify, useAuth } from "../contexts/AppContext";
 import { useQuery } from "../hooks/useQuery";
 import {
   Page,
@@ -299,6 +307,106 @@ function ExternalContext({ id }: { id: string }) {
     </View>
   );
 }
+function ExplanationCard({ id }: { id: number }) {
+  const { user, reload } = useAuth();
+  const nav = useNavigation();
+  const premium = isPremium(user);
+  // el plan va en la clave: al activar Premium se vuelve a pedir la explicación completa
+  const query = useQuery(
+    (s) => api.explanation(id, s),
+    "explanation" + id + (premium ? "p" : "f") + (user?.id ?? ""),
+  );
+  const [busy, setBusy] = useState(false);
+  const d = query.data;
+  return (
+    <View style={styles.card}>
+      <Text style={styles.eyebrow}>PREMIUM</Text>
+      <Text style={styles.subtitle}>¿Por qué este número?</Text>
+      <QueryState query={query}>
+        {d && !d.disponible && (
+          <Text style={styles.body}>
+            Estamos reuniendo las fuentes de este titular. Vuelve en unos
+            minutos.
+          </Text>
+        )}
+        {d?.disponible && d.bloqueado && (
+          <>
+            <Text style={[styles.body, { marginBottom: 14 }]}>
+              {d.cantidadFuentes}{" "}
+              {d.cantidadFuentes === 1 ? "fuente ayuda" : "fuentes ayudan"} a
+              entender este movimiento. Disponible con Premium.
+            </Text>
+            {user ? (
+              <Button
+                title="Ver por qué"
+                busy={busy}
+                onPress={async () => {
+                  setBusy(true);
+                  try {
+                    if (await askToSubscribe()) {
+                      await reload();
+                      notify("Premium activado por 30 días.");
+                    }
+                  } catch (e) {
+                    notify((e as Error).message);
+                  } finally {
+                    setBusy(false);
+                  }
+                }}
+              />
+            ) : (
+              <Button
+                title="Inicia sesión para ver por qué"
+                onPress={() => nav.go({ name: "login" })}
+              />
+            )}
+          </>
+        )}
+        {d?.disponible && !d.bloqueado && (
+          <>
+            <Text style={[styles.body, { color: colors.ink }]}>
+              {d.resumen}
+            </Text>
+            {d.fuentes.map((f, i) => (
+              <Pressable
+                key={i}
+                disabled={!f.url}
+                accessibilityRole={f.url ? "link" : "text"}
+                onPress={() => {
+                  if (f.url)
+                    Linking.openURL(f.url).catch(() =>
+                      notify("No se pudo abrir el enlace."),
+                    );
+                }}
+                style={{ marginTop: 12 }}
+              >
+                <Text style={[styles.body, { color: colors.ink }]}>
+                  [{i + 1}]{" "}
+                  {f.tipo === "NOTICIA"
+                    ? f.titulo + " ↗"
+                    : "“" + f.titulo + "”"}
+                </Text>
+                <Text style={styles.caption}>
+                  {[
+                    f.tipo === "NOTICIA" ? "Noticia" : "Comentario",
+                    f.medio,
+                    f.fecha ? dateLabel(f.fecha) : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </Text>
+              </Pressable>
+            ))}
+            <Text style={[styles.caption, { marginTop: 14 }]}>
+              Posibles factores según fuentes públicas, no causas confirmadas.
+              Resumen generado con IA a partir de las fuentes citadas.
+            </Text>
+          </>
+        )}
+      </QueryState>
+    </View>
+  );
+}
 export function DetailScreen({
   kind,
   id,
@@ -351,6 +459,7 @@ export function DetailScreen({
               )}
             </View>
             <HistoryChart points={d.value.historial} />
+            {d.kind === "headline" && <ExplanationCard id={id} />}
             {d.kind === "headline" && (
               <Button
                 title="Abrir mercado y su contexto →"

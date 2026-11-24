@@ -15,6 +15,7 @@ import {
 } from "../components/ui";
 import HistoryChart from "../components/HistoryChart";
 import TranslatedHeading from "../components/TranslatedHeading";
+import ExplanationPanel from "../components/ExplanationPanel";
 function ShareDialog({ onClose }: { onClose: () => void }) {
   const [src, setSrc] = useState("");
   const [error, setError] = useState(false);
@@ -128,6 +129,9 @@ export default function Detail({ kind }: { kind: "headline" | "market" }) {
                   </p>
                 </div>
                 <HistoryChart points={data.value.historial} />
+                {data.kind === "headline" && (
+                  <ExplanationPanel headlineId={data.value.id} />
+                )}
               </section>
               <aside className="detail-aside">
                 <h2>La perspectiva completa</h2>

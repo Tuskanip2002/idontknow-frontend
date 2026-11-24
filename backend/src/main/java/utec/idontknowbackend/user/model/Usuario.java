@@ -12,7 +12,9 @@ import lombok.Setter;
 import utec.idontknowbackend.categoria.model.Categoria;
 import utec.idontknowbackend.guardado.model.Guardado;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -64,4 +66,19 @@ public class Usuario {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private Set<Guardado> guardados = new HashSet<>();
+
+    // sin nullable = false a propósito: ddl-auto=update no puede agregar una columna NOT NULL
+    // a una tabla que ya tiene usuarios; un valor null se trata como FREE
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    @Builder.Default
+    private Plan plan = Plan.FREE;
+
+    private LocalDate premiumHasta;
+
+    public boolean esPremium() {
+        return plan == Plan.PREMIUM
+                && premiumHasta != null
+                && !premiumHasta.isBefore(LocalDate.now(ZoneId.of("America/Lima")));
+    }
 }

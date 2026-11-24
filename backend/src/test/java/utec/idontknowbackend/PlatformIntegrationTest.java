@@ -78,4 +78,21 @@ class PlatformIntegrationTest {
   assertEquals(404,request("GET","/mercados/999999",null,Map.of()).statusCode());
  }
 
+ @Test @Order(7) void explanationIsPremiumOnly()throws Exception{
+  var anonymous=request("GET","/titulares/"+headlineId+"/explicacion",null,Map.of());assertEquals(200,anonymous.statusCode(),anonymous.body());
+  var teaser=mapper.readTree(anonymous.body());assertTrue(teaser.path("disponible").asBoolean());assertTrue(teaser.path("bloqueado").asBoolean());
+  assertTrue(teaser.path("resumen").isNull()||teaser.path("resumen").isMissingNode());assertEquals(0,teaser.path("fuentes").size());assertEquals(2,teaser.path("cantidadFuentes").asInt());
+  var login=request("POST","/auth/login","{\"email\":\"lector@demo.local\",\"password\":\"LectorDemo123\"}",Map.of("X-Client-Type","mobile"));assertEquals(200,login.statusCode());
+  var headers=Map.of("Authorization","Bearer "+mapper.readTree(login.body()).path("token").asText());
+  assertTrue(mapper.readTree(request("GET","/titulares/"+headlineId+"/explicacion",null,headers).body()).path("bloqueado").asBoolean());
+  var subscribed=request("POST","/usuarios/me/suscripcion",null,headers);assertEquals(200,subscribed.statusCode(),subscribed.body());
+  assertEquals("PREMIUM",mapper.readTree(subscribed.body()).path("plan").asText());
+  var full=mapper.readTree(request("GET","/titulares/"+headlineId+"/explicacion",null,headers).body());
+  assertFalse(full.path("bloqueado").asBoolean());assertTrue(full.path("resumen").asText().contains("Ejemplo"));assertEquals(2,full.path("fuentes").size());
+  var cancelled=request("DELETE","/usuarios/me/suscripcion",null,headers);assertEquals(200,cancelled.statusCode());
+  assertEquals("FREE",mapper.readTree(cancelled.body()).path("plan").asText());
+  assertEquals(404,request("GET","/titulares/999999/explicacion",null,Map.of()).statusCode());
+  assertEquals(403,request("POST","/explicaciones/regenerar",null,headers).statusCode());
+ }
+
 }
