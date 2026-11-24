@@ -54,7 +54,10 @@ export default function Layout() {
       </div>
       <header className="masthead">
         <Link className="wordmark" to="/" aria-label="I Don't Know, portada">
-          I Don’t Know<span className="brand-dot">.</span>
+          <img className="wordmark-logo" src="/favicon.png" alt="" />
+          <span>
+            I Don’t Know<span className="brand-dot">.</span>
+          </span>
         </Link>
         <div className="header-actions">
           <Button

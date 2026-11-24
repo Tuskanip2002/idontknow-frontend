@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Text, ActivityIndicator } from "react-native";
+import { Text, ActivityIndicator, Image, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import {
@@ -224,7 +224,7 @@ function Navigator() {
         <Stack.Screen
           name="tabs"
           component={TabsNavigator}
-          options={{ title: "I Don’t Know." }}
+          options={{ title: "I Don’t Know.", headerTitle: () => <BrandTitle /> }}
         />
         <Stack.Screen
           name="headline"
@@ -297,5 +297,20 @@ export default function App() {
         </AuthProvider>
       </ErrorBoundary>
     </SafeAreaProvider>
+  );
+}
+
+function BrandTitle() {
+  return (
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+      <Image
+        source={require("../assets/logo-mark.png")}
+        style={{ width: 30, height: 30 }}
+        accessibilityIgnoresInvertColors
+      />
+      <Text style={{ fontFamily: "serif", fontSize: 25, color: colors.ink }}>
+        I Don’t Know.
+      </Text>
+    </View>
   );
 }

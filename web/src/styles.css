@@ -138,6 +138,17 @@ svg {
   font-size: 51px;
   letter-spacing: -2px;
   line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+.wordmark > span {
+  white-space: nowrap;
+}
+.wordmark-logo {
+  width: 1.05em;
+  height: 1.05em;
+  flex: none;
 }
 .brand-dot {
   color: var(--green);
@@ -1454,6 +1465,7 @@ footer > div a {
   .wordmark {
     font-size: 36px;
     letter-spacing: -1.7px;
+    gap: 9px;
   }
   .header-actions {
     gap: 7px;
