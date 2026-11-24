@@ -56,6 +56,27 @@ export interface Profile {
   role: "USER" | "ADMIN";
   fechaRegistro: string;
   categoriasSeguidas: string[];
+  /** Opcional para seguir funcionando con un backend anterior a Premium. */
+  plan?: "FREE" | "PREMIUM";
+  premiumHasta?: string | null;
+}
+export interface ExplanationSource {
+  tipo: "NOTICIA" | "COMENTARIO";
+  titulo: string;
+  url: string | null;
+  medio: string | null;
+  fecha: string | null;
+}
+/** "¿Por qué este número?". Con bloqueado = true, resumen es null y fuentes viene vacía. */
+export interface Explanation {
+  titularId: number;
+  disponible: boolean;
+  bloqueado: boolean;
+  cantidadFuentes: number;
+  tiposFuente: ("NOTICIA" | "COMENTARIO")[];
+  resumen: string | null;
+  fuentes: ExplanationSource[];
+  generadaEn: string | null;
 }
 export interface Session {
   token: string;

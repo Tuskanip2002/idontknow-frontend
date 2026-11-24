@@ -1879,3 +1879,116 @@ footer > div a {
 .headline-card.lead {
   border-top: 3px solid var(--green);
 }
+
+/* "¿Por qué este número?" (Premium) */
+.explanation {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 26px;
+  margin-top: 24px;
+  border-radius: 6px;
+}
+.explanation h2 {
+  font-size: 27px;
+  margin: 4px 0 14px;
+}
+.explanation .eyebrow {
+  color: var(--green);
+}
+.explanation-locked {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+}
+.explanation-locked p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.explanation-blur {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  filter: blur(3px);
+  opacity: 0.7;
+  user-select: none;
+}
+.explanation-blur span {
+  display: block;
+  height: 11px;
+  border-radius: 6px;
+  background: var(--mint);
+}
+.explanation-blur span:nth-child(2) {
+  width: 85%;
+}
+.explanation-blur span:nth-child(3) {
+  width: 60%;
+}
+.explanation-summary {
+  font-size: 15px;
+  line-height: 1.65;
+  margin: 0 0 18px;
+}
+.source-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: grid;
+  gap: 12px;
+  counter-reset: fuente;
+}
+.source-list li {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  counter-increment: fuente;
+}
+.source-kind {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--mint);
+  color: var(--green);
+}
+.source-list a,
+.source-list q {
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.source-list a::before,
+.source-list q::before {
+  content: "[" counter(fuente) "] ";
+  color: var(--muted);
+}
+.source-list q {
+  quotes: none;
+  font-style: italic;
+}
+.source-list small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.explanation-note {
+  font-size: 11px;
+  margin: 0;
+}
+.plan-box {
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  width: 100%;
+}
+.plan-box p {
+  margin: 4px 0 14px;
+}
+.plan-box .button {
+  width: 100%;
+}

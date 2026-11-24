@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { validPassword, categoryLabel } from "@idk/api";
+import { validPassword, categoryLabel, isPremium, dateLabel } from "@idk/api";
 import { api } from "../services/api";
 import { useAuth, useToast } from "../contexts/AppContext";
 import { useQuery } from "../hooks/useQuery";
@@ -13,6 +13,7 @@ import {
   Dialog,
 } from "../components/ui";
 import HeadlineCard from "../components/HeadlineCard";
+import { SubscribeDialog } from "../components/ExplanationPanel";
 export default function Saved() {
   const query = useQuery(api.saved, "saved");
   return (
@@ -117,8 +118,12 @@ export function Profile() {
   const [name, setName] = useState(user?.nombre || "");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [subscribe, setSubscribe] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const premium = isPremium(user);
   return (
     <>
+      {subscribe && <SubscribeDialog onClose={() => setSubscribe(false)} />}
       <PageHeading
         eyebrow="TU ESPACIO EN EL DIARIO"
         title="Mi perfil"
@@ -135,6 +140,41 @@ export function Profile() {
           <Link className="text-link" to="/guardados">
             Ver mis guardados →
           </Link>
+          <div className="plan-box">
+            <p className="eyebrow">Tu plan</p>
+            <p>
+              {premium
+                ? "Premium" +
+                  (user?.premiumHasta
+                    ? " hasta el " + dateLabel(user.premiumHasta)
+                    : "")
+                : "Gratuito: ves el número de cada noticia."}
+            </p>
+            {premium ? (
+              <Button
+                variant="outline"
+                busy={cancelling}
+                onClick={async () => {
+                  setCancelling(true);
+                  try {
+                    await api.cancelSubscription();
+                    await reload();
+                    toast("Volviste al plan gratuito.");
+                  } catch (e) {
+                    toast((e as Error).message, true);
+                  } finally {
+                    setCancelling(false);
+                  }
+                }}
+              >
+                Cancelar Premium
+              </Button>
+            ) : (
+              <Button onClick={() => setSubscribe(true)}>
+                Conocer Premium
+              </Button>
+            )}
+          </div>
         </aside>
         <form
           className="profile-form"

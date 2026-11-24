@@ -8,6 +8,11 @@ import {
 import { Alert } from "react-native";
 import type { Profile } from "@idk/api";
 import { api, auth, sessionStore, setExpiredHandler } from "../services/api";
+import {
+  biometricsAvailable,
+  biometricsEnabled,
+  confirmIdentity,
+} from "../services/biometrics";
 const AuthContext = createContext<{
   user: Profile | null;
   ready: boolean;
@@ -50,7 +55,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let active = true;
     sessionStore
       .get()
-      .then((s) => (s ? auth.refresh() : null))
+      .then(async (s) => {
+        if (!s) return null;
+        // con "Entrar con huella" activado, la sesión guardada solo se usa tras confirmar
+        // la identidad; si se cancela, se borra y hay que entrar con la contraseña
+        if (await biometricsEnabled()) {
+          const ok =
+            (await biometricsAvailable()) &&
+            (await confirmIdentity("Desbloquea I Don’t Know"));
+          if (!ok) {
+            await sessionStore.set(null);
+            return null;
+          }
+        }
+        return auth.refresh();
+      })
       .then((s) => (s ? api.profile() : null))
       .then((p) => {
         if (active) setUser(p);

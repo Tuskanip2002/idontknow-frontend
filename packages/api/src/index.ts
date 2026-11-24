@@ -10,6 +10,7 @@ import type {
   HeadlineDetail,
   Edition,
   EditionSummary,
+  Explanation,
   Page,
   PageQuery,
   Profile,
@@ -38,9 +39,16 @@ export function createApi(client: ReturnType<typeof createClient>["client"]) {
       get<Page<EditionSummary>>("/ediciones", signal, query),
     headline: (id: number, signal?: AbortSignal) =>
       get<HeadlineDetail>("/titulares/" + id, signal),
+    explanation: (id: number, signal?: AbortSignal) =>
+      get<Explanation>("/titulares/" + id + "/explicacion", signal),
     profile: (signal?: AbortSignal) => get<Profile>("/usuarios/me", signal),
     updateProfile: async (body: { nombre?: string; password?: string }) =>
       (await client.put<Profile>("/usuarios/me", body)).data,
+    /** Suscripción simulada: activa Premium por 30 días sin cobrar. */
+    subscribe: async () =>
+      (await client.post<Profile>("/usuarios/me/suscripcion")).data,
+    cancelSubscription: async () =>
+      (await client.delete<Profile>("/usuarios/me/suscripcion")).data,
     saved: (signal?: AbortSignal) => get<SavedHeadline[]>("/guardados", signal),
     save: async (titularId: number) =>
       (await client.post<SavedHeadline>("/guardados", { titularId })).data,
@@ -61,3 +69,6 @@ export function createApi(client: ReturnType<typeof createClient>["client"]) {
     },
   };
 }
+/** Premium vigente según el perfil (el backend ya considera la fecha de vencimiento). */
+export const isPremium = (profile: { plan?: string } | null | undefined) =>
+  profile?.plan === "PREMIUM";
