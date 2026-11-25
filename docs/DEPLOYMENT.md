@@ -55,6 +55,29 @@ minuto, y continúa con los comentarios disponibles. Esto reduce las solicitudes
 pero no garantiza que el proveedor vuelva a aceptar la IP del servidor. Una respuesta
 no JSON deja un aviso en los logs; no debe interpretarse como ausencia de noticias.
 
+Cuando GDELT no devuelve noticias, se consulta como respaldo el RSS de búsqueda de
+Google News, sin una clave de API adicional. Se utilizan únicamente título, medio,
+enlace y fecha: no se descarga el texto completo de los artículos. Se descartan
+enlaces distintos de HTTP/HTTPS, duplicados, artículos sin medio o fecha, fechas
+futuras y noticias de hace más de tres días. Los enlaces de Google News pueden
+redirigir al medio original. El resumen en español sigue dependiendo de Groq y solo
+debe atribuir una causa cuando las fuentes la respalden.
+
+El respaldo viene habilitado en Compose local y AWS. Puede deshabilitarse con
+`NOTICIAS_RSS_ENABLED=false` en `.env`, seguido de `docker compose ... up -d`.
+`NOTICIAS_RSS_URL` permite configurar el endpoint de búsqueda; el lector espera RSS
+con el formato de Google News. Es un servicio externo sin garantía de disponibilidad
+ni de resultados para todos los mercados. Si ambos proveedores fallan, se conservan
+las fuentes anteriores del titular. Las pruebas verifican errores HTTP y el bloqueo
+de entidades XML externas.
+
+Validación del respaldo (25 de noviembre de 2026): desde EC2, la búsqueda RSS
+respondió HTTP 200 con `application/xml`. En desarrollo, el cliente Java integrado
+recuperó cuatro noticias por consulta para Netanyahu, NVIDIA y el estrecho de Ormuz
+con un servidor GDELT de prueba que respondía 429. Pasaron 61 pruebas del backend.
+Estas comprobaciones no sustituyen la regeneración y revisión del resumen Premium
+en producción después de desplegar el cambio.
+
 Después de corregir y desplegar, regenerar la portada mediante
 `POST /api/v1/explicaciones/regenerar` con una sesión ADMIN. El arranque solo completa
 las explicaciones inexistentes, por lo que no reemplaza las que ya tenían cero fuentes.

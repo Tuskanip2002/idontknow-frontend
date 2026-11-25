@@ -12,6 +12,8 @@ services:
       JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=60
       GROQ_API_KEY: ${GROQ_API_KEY:-dummy}
       GROQ_MODEL: ${GROQ_MODEL:-openai/gpt-oss-20b}
+      NOTICIAS_RSS_ENABLED: ${NOTICIAS_RSS_ENABLED:-true}
+      NOTICIAS_RSS_URL: ${NOTICIAS_RSS_URL:-https://news.google.com/rss/search}
       EMAIL_ENABLED: ${EMAIL_ENABLED:-false}
       MAIL_USERNAME: ${MAIL_USERNAME:-dummy@example.com}
       MAIL_APP_PASSWORD: ${MAIL_APP_PASSWORD:-dummy}

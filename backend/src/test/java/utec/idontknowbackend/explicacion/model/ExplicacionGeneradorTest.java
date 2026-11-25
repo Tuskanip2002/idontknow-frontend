@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import utec.idontknowbackend.edicion.infrastructure.EdicionRepository;
 import utec.idontknowbackend.explicacion.infrastructure.ExplicacionRepository;
-import utec.idontknowbackend.explicacion.infrastructure.GdeltClient;
+import utec.idontknowbackend.explicacion.infrastructure.NoticiasClient;
 import utec.idontknowbackend.explicacion.infrastructure.PolymarketComentariosClient;
 import utec.idontknowbackend.mercado.model.Mercado;
 import utec.idontknowbackend.polymarket.GroqTraduccionClient;
@@ -28,7 +28,7 @@ class ExplicacionGeneradorTest {
     @Mock private TitularRepository titulares;
     @Mock private EdicionRepository ediciones;
     @Mock private ExplicacionRepository explicaciones;
-    @Mock private GdeltClient gdelt;
+    @Mock private NoticiasClient noticias;
     @Mock private PolymarketComentariosClient comentarios;
     @Mock private GroqTraduccionClient groq;
     private ExplicacionGenerador generador;
@@ -36,7 +36,7 @@ class ExplicacionGeneradorTest {
 
     @BeforeEach
     void preparar() {
-        generador = new ExplicacionGenerador(titulares, ediciones, explicaciones, gdelt, comentarios, groq);
+        generador = new ExplicacionGenerador(titulares, ediciones, explicaciones, noticias, comentarios, groq);
         titular = Titular.builder().id(204L).mercado(Mercado.builder()
                 .polymarketId("682705").preguntaOriginal("Will Netanyahu win?").build()).build();
     }
@@ -85,7 +85,7 @@ class ExplicacionGeneradorTest {
         var antigua = fuente(TipoFuente.NOTICIA, "Noticia antigua");
         var nueva = fuente(TipoFuente.NOTICIA, "Noticia nueva");
         var previa = anterior(antigua);
-        when(gdelt.buscarNoticias(anyString(), eq(4))).thenReturn(List.of(nueva));
+        when(noticias.buscarNoticias(anyString(), eq(4))).thenReturn(List.of(nueva));
         generador.generar(titular);
         assertEquals(List.of(nueva), previa.getFuentes());
         verify(explicaciones).save(previa);

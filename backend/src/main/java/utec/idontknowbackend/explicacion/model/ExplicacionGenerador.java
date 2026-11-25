@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import utec.idontknowbackend.edicion.infrastructure.EdicionRepository;
 import utec.idontknowbackend.explicacion.infrastructure.ExplicacionRepository;
-import utec.idontknowbackend.explicacion.infrastructure.GdeltClient;
+import utec.idontknowbackend.explicacion.infrastructure.NoticiasClient;
 import utec.idontknowbackend.explicacion.infrastructure.PolymarketComentariosClient;
 import utec.idontknowbackend.mercado.model.Mercado;
 import utec.idontknowbackend.polymarket.GroqTraduccionClient;
@@ -47,7 +47,7 @@ public class ExplicacionGenerador {
     private final TitularRepository titularRepository;
     private final EdicionRepository edicionRepository;
     private final ExplicacionRepository explicacionRepository;
-    private final GdeltClient gdeltClient;
+    private final NoticiasClient noticiasClient;
     private final PolymarketComentariosClient comentariosClient;
     private final GroqTraduccionClient groqClient;
 
@@ -90,7 +90,7 @@ public class ExplicacionGenerador {
                 .orElseGet(() -> Explicacion.builder().titular(titular).build());
 
         List<FuenteExplicacion> fuentes = new ArrayList<>();
-        fuentes.addAll(gdeltClient.buscarNoticias(PalabrasClave.consulta(mercado.getPreguntaOriginal()), MAX_NOTICIAS));
+        fuentes.addAll(noticiasClient.buscarNoticias(PalabrasClave.consulta(mercado.getPreguntaOriginal()), MAX_NOTICIAS));
         fuentes.addAll(comentariosClient.obtenerComentarios(mercado.getPolymarketId(), MAX_COMENTARIOS));
 
         if (fuentes.isEmpty() && !explicacion.getFuentes().isEmpty()) {
