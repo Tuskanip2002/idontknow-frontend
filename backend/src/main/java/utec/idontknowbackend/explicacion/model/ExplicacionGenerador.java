@@ -86,10 +86,30 @@ public class ExplicacionGenerador {
 
     public void generar(Titular titular) {
         Mercado mercado = titular.getMercado();
+        Explicacion explicacion = explicacionRepository.findByTitularId(titular.getId())
+                .orElseGet(() -> Explicacion.builder().titular(titular).build());
 
         List<FuenteExplicacion> fuentes = new ArrayList<>();
         fuentes.addAll(gdeltClient.buscarNoticias(PalabrasClave.consulta(mercado.getPreguntaOriginal()), MAX_NOTICIAS));
         fuentes.addAll(comentariosClient.obtenerComentarios(mercado.getPolymarketId(), MAX_COMENTARIOS));
+
+        if (fuentes.isEmpty() && !explicacion.getFuentes().isEmpty()) {
+            log.warn("Sin fuentes nuevas para el titular {}; se conservan las {} fuentes previas y su fecha de generación",
+                    titular.getId(), explicacion.getFuentes().size());
+            return;
+        }
+        // Un proveedor puede fallar mientras el otro sí devuelve fuentes.
+        for (TipoFuente tipo : TipoFuente.values()) {
+            if (fuentes.stream().noneMatch(f -> f.getTipo() == tipo)) {
+                List<FuenteExplicacion> anteriores = explicacion.getFuentes().stream()
+                        .filter(f -> f.getTipo() == tipo).toList();
+                if (!anteriores.isEmpty()) {
+                    fuentes.addAll(anteriores);
+                    log.warn("Se conservan {} fuentes previas de tipo {} para el titular {}",
+                            anteriores.size(), tipo, titular.getId());
+                }
+            }
+        }
 
         String resumen = fuentes.isEmpty() ? null : groqClient.resumirMovimiento(
                 mercado.getPreguntaOriginal(),
@@ -97,8 +117,6 @@ public class ExplicacionGenerador {
                 enPorcentaje(titular.getCambioDesdeAyer()),
                 fuentes.stream().map(ExplicacionGenerador::describir).toList());
 
-        Explicacion explicacion = explicacionRepository.findByTitularId(titular.getId())
-                .orElseGet(() -> Explicacion.builder().titular(titular).build());
         explicacion.setResumen(resumen != null ? resumen : (fuentes.isEmpty() ? SIN_FUENTES : SIN_CAUSA_CLARA));
         explicacion.getFuentes().clear();
         explicacion.getFuentes().addAll(fuentes);

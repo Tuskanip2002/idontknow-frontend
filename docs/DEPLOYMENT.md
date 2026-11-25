@@ -64,6 +64,12 @@ la generación; no confirma que se hayan recuperado fuentes. Verificar además e
 resumen con una cuenta Premium. Los comentarios se identifican como opiniones de
 participantes, no como noticias periodísticas.
 
+Al regenerar, una consulta sin fuentes nuevas conserva el resumen, las fuentes y la
+fecha de generación anteriores. Si solo uno de los proveedores devuelve resultados,
+se conservan las fuentes previas del otro tipo para ese mismo titular y se vuelve a
+generar el resumen con la combinación resultante. Esto no recupera fuentes que ya
+se hubieran borrado ni garantiza fuentes para todos los mercados.
+
 ```powershell
 node scripts/check-endpoints.mjs https://TU-API/api/v1
 ```
