@@ -9,11 +9,33 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GdeltClientTest {
+
+    @Test
+    void un429PausaLasConsultasPosteriores() throws Exception {
+        AtomicInteger consultas = new AtomicInteger();
+        HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/doc", exchange -> {
+            consultas.incrementAndGet();
+            exchange.getResponseHeaders().add("Retry-After", "120");
+            exchange.sendResponseHeaders(429, -1);
+            exchange.close();
+        });
+        server.start();
+        try {
+            var client = new GdeltClient("http://127.0.0.1:" + server.getAddress().getPort() + "/doc");
+            assertTrue(client.buscarNoticias("Netanyahu", 4).isEmpty());
+            assertTrue(client.buscarNoticias("NVIDIA", 4).isEmpty());
+            assertEquals(1, consultas.get(), "No debe insistir durante el límite del proveedor");
+        } finally {
+            server.stop(0);
+        }
+    }
 
     private static final String RESPUESTA = """
             {"articles":[

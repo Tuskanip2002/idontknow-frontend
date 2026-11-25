@@ -43,6 +43,27 @@ El backend sincroniza diariamente a las 6 a.m. de Lima. Una instalación nueva n
 La app se configuró con Expo SDK 54. Usar un development build compatible; comprobar compatibilidad si se cambia el SDK o se elige otra versión de Expo Go.
 
 ## Verificación
+
+### Explicaciones con fuentes
+Los comentarios se obtienen del evento asociado al mercado: primero `/markets?id=ID`
+y después `/comments?parent_entity_type=Event&parent_entity_id=EVENTO_ID`.
+El tipo `market` no está admitido por Gamma y la respuesta individual de un mercado
+puede omitir su relación con eventos.
+
+Si GDELT responde 429, el cliente respeta `Retry-After`, con una pausa mínima de un
+minuto, y continúa con los comentarios disponibles. Esto reduce las solicitudes,
+pero no garantiza que el proveedor vuelva a aceptar la IP del servidor. Una respuesta
+no JSON deja un aviso en los logs; no debe interpretarse como ausencia de noticias.
+
+Después de corregir y desplegar, regenerar la portada mediante
+`POST /api/v1/explicaciones/regenerar` con una sesión ADMIN. El arranque solo completa
+las explicaciones inexistentes, por lo que no reemplaza las que ya tenían cero fuentes.
+Esperar a que termine el trabajo en segundo plano y comprobar los recuentos en los
+logs y en `GET /api/v1/titulares/ID/explicacion`. Un 202 solo confirma que se inició
+la generación; no confirma que se hayan recuperado fuentes. Verificar además el
+resumen con una cuenta Premium. Los comentarios se identifican como opiniones de
+participantes, no como noticias periodísticas.
+
 ```powershell
 node scripts/check-endpoints.mjs https://TU-API/api/v1
 ```

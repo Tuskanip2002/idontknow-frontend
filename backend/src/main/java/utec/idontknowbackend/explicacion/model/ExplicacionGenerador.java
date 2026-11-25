@@ -38,8 +38,8 @@ public class ExplicacionGenerador {
     private static final ZoneId LIMA = ZoneId.of("America/Lima");
 
     static final String SIN_FUENTES =
-            "No encontramos noticias ni comentarios recientes sobre este mercado. "
-                    + "El movimiento podría deberse a operaciones de pocos participantes.";
+            "No hay fuentes disponibles para explicar este movimiento en este momento. "
+                    + "No podemos atribuirle una causa con la información obtenida.";
     static final String SIN_CAUSA_CLARA =
             "Las fuentes recientes no explican con claridad este movimiento. "
                     + "Puede deberse a información que todavía no aparece en las noticias.";
@@ -104,6 +104,10 @@ public class ExplicacionGenerador {
         explicacion.getFuentes().addAll(fuentes);
         explicacion.setGeneradaEn(LocalDateTime.now(LIMA));
         explicacionRepository.save(explicacion);
+        log.info("Explicación del titular {} guardada con {} fuentes ({} noticias, {} comentarios)",
+                titular.getId(), fuentes.size(),
+                fuentes.stream().filter(f -> f.getTipo() == TipoFuente.NOTICIA).count(),
+                fuentes.stream().filter(f -> f.getTipo() == TipoFuente.COMENTARIO).count());
     }
 
     static String describir(FuenteExplicacion fuente) {

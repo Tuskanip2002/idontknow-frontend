@@ -7,11 +7,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpClientErrorException;
 import utec.idontknowbackend.explicacion.model.FuenteExplicacion;
 import utec.idontknowbackend.explicacion.model.Texto;
 import utec.idontknowbackend.explicacion.model.TipoFuente;
 
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -33,6 +36,7 @@ public class GdeltClient {
     private static final DateTimeFormatter FECHA_GDELT = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'");
 
     private final RestClient restClient;
+    private Instant proximaConsulta = Instant.MIN;
 
     public GdeltClient(@Value("${gdelt.api.url:https://api.gdeltproject.org/api/v2/doc/doc}") String url) {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
@@ -42,10 +46,17 @@ public class GdeltClient {
     }
 
     /** Noticias de los últimos 3 días. Devuelve una lista vacía si GDELT falla o no encuentra nada. */
-    public List<FuenteExplicacion> buscarNoticias(String consulta, int maximo) {
-        if (consulta == null || consulta.isBlank()) {
+    public synchronized List<FuenteExplicacion> buscarNoticias(String consulta, int maximo) {
+        if (consulta == null || consulta.isBlank() || maximo <= 0) {
             return List.of();
         }
+        Instant ahora = Instant.now();
+        if (ahora.isBefore(proximaConsulta)) {
+            log.debug("GDELT en pausa hasta {}; se omite la consulta", proximaConsulta);
+            return List.of();
+        }
+        // Compartido por todas las generaciones, incluidas las iniciadas por un ADMIN.
+        proximaConsulta = ahora.plusMillis(5_500);
         try {
             String body = restClient.get()
                     .uri(builder -> builder
@@ -59,15 +70,35 @@ public class GdeltClient {
                     .retrieve()
                     .body(String.class);
             return leerArticulos(body, maximo);
+        } catch (HttpClientErrorException.TooManyRequests ex) {
+            String retryAfter = ex.getResponseHeaders() == null ? null
+                    : ex.getResponseHeaders().getFirst("Retry-After");
+            proximaConsulta = Instant.now().plus(esperaTrasLimite(retryAfter));
+            log.warn("GDELT limitó las solicitudes (429); consultas suspendidas hasta {}. "
+                    + "No se puede concluir que no existan noticias.", proximaConsulta);
+            return List.of();
         } catch (Exception ex) {
             log.warn("GDELT no respondió para '{}': {}", consulta, ex.getMessage());
             return List.of();
         }
     }
 
-    /** GDELT a veces responde texto plano (por ejemplo, si la búsqueda es muy corta): eso cuenta como "sin resultados". */
+    private static Duration esperaTrasLimite(String retryAfter) {
+        try {
+            Duration espera = retryAfter.matches("\\d+")
+                    ? Duration.ofSeconds(Long.parseLong(retryAfter))
+                    : Duration.between(Instant.now(), ZonedDateTime.parse(retryAfter,
+                            DateTimeFormatter.RFC_1123_DATE_TIME).toInstant());
+            return espera.compareTo(Duration.ofSeconds(60)) > 0 ? espera : Duration.ofSeconds(60);
+        } catch (Exception ex) {
+            return Duration.ofSeconds(60);
+        }
+    }
+
+    /** Una respuesta inválida no demuestra ausencia de noticias. */
     static List<FuenteExplicacion> leerArticulos(String body, int maximo) {
         if (body == null || !body.trim().startsWith("{")) {
+            log.warn("GDELT devolvió una respuesta vacía o no JSON; no se pudieron consultar las noticias");
             return List.of();
         }
         try {
@@ -93,6 +124,7 @@ public class GdeltClient {
             }
             return fuentes;
         } catch (Exception ex) {
+            log.warn("No se pudo interpretar la respuesta JSON de GDELT: {}", ex.getMessage());
             return List.of();
         }
     }

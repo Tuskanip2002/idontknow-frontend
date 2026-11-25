@@ -38,14 +38,10 @@ public class PolymarketComentariosClient {
     /** Los comentarios con más reacciones. Lista vacía si el mercado no tiene o la API falla. */
     public List<FuenteExplicacion> obtenerComentarios(String polymarketId, int maximo) {
         // los mercados del perfil demo ("demo-3") no existen en Polymarket
-        if (polymarketId == null || !polymarketId.matches("\\d+")) {
+        if (polymarketId == null || !polymarketId.matches("\\d+") || maximo <= 0) {
             return List.of();
         }
-        List<FuenteExplicacion> comentarios = consultar("market", polymarketId, maximo);
-        if (!comentarios.isEmpty()) {
-            return comentarios;
-        }
-        // en Polymarket la conversación suele colgar del evento que agrupa al mercado
+        // Gamma admite Event, Series y PerpsAsset; no admite comentarios de tipo market.
         String eventoId = buscarEvento(polymarketId);
         return eventoId == null ? List.of() : consultar("Event", eventoId, maximo);
     }
@@ -71,14 +67,25 @@ public class PolymarketComentariosClient {
 
     private String buscarEvento(String marketId) {
         try {
-            String body = restClient.get().uri("/markets/{id}", marketId).retrieve().body(String.class);
-            JsonNode eventos = MAPPER.readTree(body).path("events");
-            if (eventos.isArray() && !eventos.isEmpty()) {
-                String id = eventos.get(0).path("id").asText("");
-                return id.isBlank() ? null : id;
+            // La respuesta individual /markets/{id} no incluye la relación events.
+            String body = restClient.get()
+                    .uri(builder -> builder.path("/markets").queryParam("id", marketId).build())
+                    .retrieve().body(String.class);
+            for (JsonNode mercado : MAPPER.readTree(body)) {
+                if (!marketId.equals(mercado.path("id").asText())) {
+                    continue;
+                }
+                for (JsonNode evento : mercado.path("events")) {
+                    String id = evento.path("id").asText("");
+                    if (id.matches("\\d+")) {
+                        return id;
+                    }
+                }
             }
+            log.warn("Polymarket no devolvió un evento para el mercado {}", marketId);
             return null;
         } catch (Exception ex) {
+            log.warn("No se pudo obtener el evento del mercado {}: {}", marketId, ex.getMessage());
             return null;
         }
     }
