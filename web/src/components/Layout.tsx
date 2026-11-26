@@ -16,6 +16,13 @@ export default function Layout() {
   const [online, setOnline] = useState(navigator.onLine);
   useEffect(() => {
     document.documentElement.dataset.theme = dark ? "dark" : "light";
+    // el ícono de la pestaña sigue al tema de la página
+    const sufijo = dark ? "-dark" : "";
+    document
+      .querySelectorAll<HTMLLinkElement>('link[rel="icon"]')
+      .forEach((link) => {
+        link.href = `/favicon${sufijo}.${link.type === "image/png" ? "png" : "ico"}`;
+      });
   }, [dark]);
   useEffect(() => {
     const update = () => setOnline(navigator.onLine);
@@ -54,7 +61,11 @@ export default function Layout() {
       </div>
       <header className="masthead">
         <Link className="wordmark" to="/" aria-label="I Don't Know, portada">
-          <img className="wordmark-logo" src="/favicon.png" alt="" />
+          <img
+            className="wordmark-logo"
+            src={dark ? "/favicon-dark.png" : "/favicon.png"}
+            alt=""
+          />
           <span>
             I Don’t Know<span className="brand-dot">.</span>
           </span>
