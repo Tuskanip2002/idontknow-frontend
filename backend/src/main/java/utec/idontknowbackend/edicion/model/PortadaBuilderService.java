@@ -9,6 +9,7 @@ import utec.idontknowbackend.polymarket.GroqTraduccionClient;
 import utec.idontknowbackend.polymarket.MovimientoMercado;
 import utec.idontknowbackend.titular.infrastructure.TitularRepository;
 import utec.idontknowbackend.titular.model.Titular;
+import utec.idontknowbackend.util.FiltroTemas;
 import utec.idontknowbackend.util.ScoreCalculator;
 
 import java.math.BigDecimal;
@@ -33,7 +34,16 @@ public class PortadaBuilderService {
     public void construir(List<MovimientoMercado> movimientos) {
         LocalDate hoy = LocalDate.now(java.time.ZoneId.of("America/Lima"));
 
-        List<MovimientoMercado> top = movimientos.stream()
+        // los mercados de chismes o contenido sexual no entran a la portada
+        List<MovimientoMercado> aptos = movimientos.stream()
+                .filter(m -> !FiltroTemas.esSensacionalista(m.mercado().getPreguntaOriginal()))
+                .toList();
+        if (aptos.size() < movimientos.size()) {
+            log.info("Se excluyeron {} mercados sensacionalistas de la portada de {}",
+                    movimientos.size() - aptos.size(), hoy);
+        }
+
+        List<MovimientoMercado> top = aptos.stream()
                 .sorted(Comparator.comparingDouble(this::calcularPuntaje).reversed())
                 .limit(TITULARES_POR_EDICION)
                 .toList();
