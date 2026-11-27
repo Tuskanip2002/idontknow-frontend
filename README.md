@@ -7,7 +7,7 @@ Repositorio del proyecto completo: [idontknow-frontend](https://github.com/Tuska
 
 - [Web pública](https://18-223-255-39.sslip.io/)
 - [Estado de la API](https://18-223-255-39.sslip.io/api/v1/estado)
-- [APK de Android en Expo](https://expo.dev/accounts/tuskanips-team/projects/idontknow-dbp/builds/dcb8354c-bf62-45cd-b983-68365e6959c6)
+- [APK de Android en Expo](https://expo.dev/accounts/tuskanips-team/projects/idontknow-dbp/builds/2dd22c09-1bda-4f6d-a079-e2a541e2c41f)
 
 La web y el backend se ejecutan en Amazon EC2 con Docker Compose. Caddy sirve la web y la API por HTTPS en el mismo dominio. El backend guarda los datos en PostgreSQL privado en Amazon RDS. La configuración de los contenedores está en [compose.aws.yaml](compose.aws.yaml).
 
