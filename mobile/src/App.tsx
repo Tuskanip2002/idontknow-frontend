@@ -1,10 +1,17 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Text, ActivityIndicator, Image, View } from "react-native";
+import {
+  Text,
+  ActivityIndicator,
+  Image,
+  View,
+  useColorScheme,
+} from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import {
   NavigationContainer,
   DefaultTheme,
+  DarkTheme,
   createNavigationContainerRef,
   type NavigatorScreenParams,
 } from "@react-navigation/native";
@@ -19,7 +26,15 @@ import { api, webOrigin } from "./services/api";
 import { AuthProvider, useAuth } from "./contexts/AppContext";
 import { useNavigation } from "./navigation";
 
-import { ErrorBoundary, colors, Page, Heading, Button } from "./components/ui";
+import {
+  ErrorBoundary,
+  colors,
+  aplicarTema,
+  esquemaActual,
+  Page,
+  Heading,
+  Button,
+} from "./components/ui";
 import {
   HomeScreen,
   MarketsScreen,
@@ -185,7 +200,11 @@ function Navigator() {
     };
     Linking.getInitialURL()
       .then((url) => {
-        if (url) open(url);
+        // al cambiar de tema el navegador se vuelve a montar: no repetir el enlace inicial
+        if (url && !enlaceInicialAbierto) {
+          enlaceInicialAbierto = true;
+          open(url);
+        }
       })
       .catch(() => {});
     const subscription = Linking.addEventListener("url", ({ url }) =>
@@ -198,7 +217,7 @@ function Navigator() {
       style={{ flex: 1, backgroundColor: colors.paper }}
       edges={["left", "right"]}
     >
-      <StatusBar style="dark" />
+      <StatusBar style={esquemaActual === "dark" ? "light" : "dark"} />
       {demo && (
         <SafeAreaView edges={["top"]} style={{ backgroundColor: colors.mint }}>
           <Text
@@ -224,7 +243,10 @@ function Navigator() {
         <Stack.Screen
           name="tabs"
           component={TabsNavigator}
-          options={{ title: "I Don’t Know.", headerTitle: () => <BrandTitle /> }}
+          options={{
+            title: "I Don’t Know.",
+            headerTitle: () => <BrandTitle />,
+          }}
         />
         <Stack.Screen
           name="headline"
@@ -275,23 +297,34 @@ function Navigator() {
     </SafeAreaView>
   );
 }
-const theme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    background: colors.paper,
-    card: colors.surface,
-    text: colors.ink,
-    primary: colors.green,
-    border: colors.line,
-  },
-};
+let enlaceInicialAbierto = false;
+function temaNavegacion() {
+  const base = esquemaActual === "dark" ? DarkTheme : DefaultTheme;
+  return {
+    ...base,
+    colors: {
+      ...base.colors,
+      background: colors.paper,
+      card: colors.surface,
+      text: colors.ink,
+      primary: colors.green,
+      border: colors.line,
+    },
+  };
+}
 export default function App() {
+  // sigue el modo claro u oscuro del sistema; al cambiar, se vuelven a montar las pantallas
+  const esquema = useColorScheme() === "dark" ? "dark" : "light";
+  aplicarTema(esquema);
   return (
     <SafeAreaProvider>
       <ErrorBoundary>
         <AuthProvider>
-          <NavigationContainer ref={navigationRef} theme={theme}>
+          <NavigationContainer
+            key={esquema}
+            ref={navigationRef}
+            theme={temaNavegacion()}
+          >
             <Navigator />
           </NavigationContainer>
         </AuthProvider>
@@ -304,7 +337,11 @@ function BrandTitle() {
   return (
     <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
       <Image
-        source={require("../assets/logo-mark.png")}
+        source={
+          esquemaActual === "dark"
+            ? require("../assets/logo-mark-dark.png")
+            : require("../assets/logo-mark.png")
+        }
         style={{ width: 30, height: 30 }}
         accessibilityIgnoresInvertColors
       />

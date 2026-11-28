@@ -5,7 +5,7 @@
     "scheme": "idontknow",
     "version": "1.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "icon": "./assets/icon.png",
     "ios": {
       "supportsTablet": true,
@@ -19,7 +19,7 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "monochromeImage": "./assets/monochrome-icon.png",
-        "backgroundColor": "#E5E9DC"
+        "backgroundColor": "#17231F"
       },
       "permissions": [
         "android.permission.CAMERA",

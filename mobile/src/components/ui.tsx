@@ -7,6 +7,7 @@ import {
   TextInput,
   ActivityIndicator,
   StyleSheet,
+  Appearance,
   ScrollView,
   RefreshControl,
   type TextInputProps,
@@ -14,7 +15,7 @@ import {
 import { percent, type Headline } from "@idk/api";
 import { api } from "../services/api";
 import { useAuth, notify } from "../contexts/AppContext";
-export const colors = {
+const claro = {
   paper: "#f7f6f0",
   surface: "#fffefa",
   ink: "#20312a",
@@ -24,6 +25,21 @@ export const colors = {
   mint: "#e7efdf",
   red: "#a3483e",
 };
+// Misma paleta que el modo oscuro de la web (styles.css)
+const oscuro: typeof claro = {
+  paper: "#17231f",
+  surface: "#1c2c25",
+  ink: "#e6e9dc",
+  muted: "#abb7aa",
+  line: "#3a493f",
+  green: "#a3c98e",
+  mint: "#283f30",
+  red: "#efac9a",
+};
+export type Esquema = "light" | "dark";
+// Objetos vivos: aplicarTema los rellena con la paleta del esquema actual
+export const colors = { ...claro };
+export let esquemaActual: Esquema = "light";
 export function Button({
   title,
   onPress,
@@ -282,98 +298,109 @@ export class ErrorBoundary extends Component<
     );
   }
 }
-export const styles = StyleSheet.create({
-  page: {
-    padding: 22,
-    paddingBottom: 45,
-    gap: 16,
-    flexGrow: 1,
-    backgroundColor: colors.paper,
-  },
-  title: {
-    fontFamily: "serif",
-    fontSize: 38,
-    color: colors.ink,
-    lineHeight: 41,
-  },
-  subtitle: {
-    fontFamily: "serif",
-    fontSize: 26,
-    lineHeight: 31,
-    color: colors.ink,
-    marginVertical: 14,
-  },
-  body: { fontSize: 14, color: colors.muted, lineHeight: 23 },
-  eyebrow: {
-    fontSize: 10,
-    letterSpacing: 1.4,
-    color: colors.green,
-    fontWeight: "700",
-  },
-  caption: { fontSize: 12, color: colors.muted },
-  number: {
-    fontSize: 40,
-    color: colors.ink,
-    fontWeight: "500",
-    letterSpacing: -1.5,
-  },
-  card: {
-    padding: 23,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.surface,
-    marginBottom: 2,
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 10,
-    flexWrap: "wrap",
-  },
-  button: {
-    minHeight: 44,
-    backgroundColor: colors.ink,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 5,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: colors.ink,
-  },
-  outline: { backgroundColor: "transparent", borderColor: colors.line },
-  buttonText: { fontSize: 12, fontWeight: "600", color: colors.surface },
-  input: {
-    minHeight: 46,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 5,
-    paddingHorizontal: 13,
-    paddingVertical: 11,
-    fontSize: 15,
-    color: colors.ink,
-    backgroundColor: colors.surface,
-  },
-  label: { fontSize: 13, fontWeight: "600", color: colors.ink },
-  empty: {
-    padding: 25,
-    gap: 18,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderStyle: "dashed",
-    borderRadius: 7,
-    alignItems: "stretch",
-  },
-  chip: {
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 20,
-    paddingHorizontal: 13,
-    paddingVertical: 10,
-    marginRight: 7,
-    backgroundColor: colors.surface,
-  },
-  chipActive: { backgroundColor: colors.mint, borderColor: colors.green },
-});
+function crearEstilos() {
+  return StyleSheet.create({
+    page: {
+      padding: 22,
+      paddingBottom: 45,
+      gap: 16,
+      flexGrow: 1,
+      backgroundColor: colors.paper,
+    },
+    title: {
+      fontFamily: "serif",
+      fontSize: 38,
+      color: colors.ink,
+      lineHeight: 41,
+    },
+    subtitle: {
+      fontFamily: "serif",
+      fontSize: 26,
+      lineHeight: 31,
+      color: colors.ink,
+      marginVertical: 14,
+    },
+    body: { fontSize: 14, color: colors.muted, lineHeight: 23 },
+    eyebrow: {
+      fontSize: 10,
+      letterSpacing: 1.4,
+      color: colors.green,
+      fontWeight: "700",
+    },
+    caption: { fontSize: 12, color: colors.muted },
+    number: {
+      fontSize: 40,
+      color: colors.ink,
+      fontWeight: "500",
+      letterSpacing: -1.5,
+    },
+    card: {
+      padding: 23,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.line,
+      backgroundColor: colors.surface,
+      marginBottom: 2,
+    },
+    row: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      gap: 10,
+      flexWrap: "wrap",
+    },
+    button: {
+      minHeight: 44,
+      backgroundColor: colors.ink,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderRadius: 5,
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 1,
+      borderColor: colors.ink,
+    },
+    outline: { backgroundColor: "transparent", borderColor: colors.line },
+    buttonText: { fontSize: 12, fontWeight: "600", color: colors.surface },
+    input: {
+      minHeight: 46,
+      borderWidth: 1,
+      borderColor: colors.line,
+      borderRadius: 5,
+      paddingHorizontal: 13,
+      paddingVertical: 11,
+      fontSize: 15,
+      color: colors.ink,
+      backgroundColor: colors.surface,
+    },
+    label: { fontSize: 13, fontWeight: "600", color: colors.ink },
+    empty: {
+      padding: 25,
+      gap: 18,
+      borderWidth: 1,
+      borderColor: colors.line,
+      borderStyle: "dashed",
+      borderRadius: 7,
+      alignItems: "stretch",
+    },
+    chip: {
+      borderWidth: 1,
+      borderColor: colors.line,
+      borderRadius: 20,
+      paddingHorizontal: 13,
+      paddingVertical: 10,
+      marginRight: 7,
+      backgroundColor: colors.surface,
+    },
+    chipActive: { backgroundColor: colors.mint, borderColor: colors.green },
+  });
+}
+export const styles: ReturnType<typeof crearEstilos> = { ...crearEstilos() };
+export function aplicarTema(esquema: string | null | undefined) {
+  const nuevo: Esquema = esquema === "dark" ? "dark" : "light";
+  if (nuevo === esquemaActual) return;
+  esquemaActual = nuevo;
+  Object.assign(colors, nuevo === "dark" ? oscuro : claro);
+  Object.assign(styles, crearEstilos());
+}
+aplicarTema(Appearance.getColorScheme());

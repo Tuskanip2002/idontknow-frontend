@@ -63,7 +63,7 @@ export default function Layout() {
         <Link className="wordmark" to="/" aria-label="I Don't Know, portada">
           <img
             className="wordmark-logo"
-            src={dark ? "/favicon-dark.png" : "/favicon.png"}
+            src={dark ? "/logo-mark-dark.png" : "/logo-mark.png"}
             alt=""
           />
           <span>
