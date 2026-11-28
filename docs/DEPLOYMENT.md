@@ -15,6 +15,37 @@ Los secretos se guardan en el servidor. La clave privada SSH, `.env` y el estado
 
 Para el puntaje completo hacen falta URLs verificables de la web, API y distribución móvil, PostgreSQL administrado, HTTPS y autenticación de extremo a extremo. Un localhost o un bundle exportado no cumple esa parte.
 
+## Actualizar el servidor (método actual)
+
+La carpeta del servidor (`/home/ubuntu/idontknow-app`) no es un clon de Git: el código se descarga como archivo comprimido desde `master`. Por eso `git pull` no funciona ahí. Cada integrante entra con su propia llave SSH, agregada a `~/.ssh/authorized_keys` del servidor; no se comparte la llave privada de nadie.
+
+```bash
+ssh -i ~/.ssh/id_ed25519 ubuntu@18.223.255.39
+cd /home/ubuntu
+cp -a idontknow-app idontknow-app-respaldo-$(date +%F-%H%M)
+rm -rf /tmp/idk-nuevo /tmp/idk.tar.gz
+curl -L -o /tmp/idk.tar.gz https://github.com/Tuskanip2002/idontknow-frontend/archive/refs/heads/master.tar.gz
+mkdir -p /tmp/idk-nuevo
+tar -xzf /tmp/idk.tar.gz -C /tmp/idk-nuevo --strip-components=1
+rsync -a --exclude '.env' --exclude 'rds-ca.pem' /tmp/idk-nuevo/ /home/ubuntu/idontknow-app/
+cd /home/ubuntu/idontknow-app
+sudo docker compose -f compose.aws.yaml up -d --build
+sudo docker compose -f compose.aws.yaml ps
+rm -rf /tmp/idk-nuevo /tmp/idk.tar.gz
+```
+
+`rsync` sin `--delete` no borra archivos, y los `--exclude` protegen `.env` y el certificado de RDS. Para volver atrás, copiar el respaldo sobre `idontknow-app` con `rsync -a idontknow-app-respaldo-FECHA/ idontknow-app/` y volver a ejecutar `up -d --build`. No reiniciar la instancia sin una Elastic IP: AWS podría asignarle otra IP y el dominio `sslip.io` y el APK dejarían de apuntar al servidor.
+
+Variables opcionales de las funciones de la final:
+
+| Variable | Valor por defecto | Uso |
+| --- | --- | --- |
+| `NOTICIAS_RSS_ENABLED` | `true` | Respaldo de Google News cuando GDELT no devuelve noticias. Ya se pasa al contenedor en ambos Compose. |
+| `NOTICIAS_RSS_URL` | `https://news.google.com/rss/search` | Endpoint de búsqueda RSS. Ya se pasa al contenedor. |
+| `EXPLICACIONES_ENABLED` | `true` | Apagar la generación de explicaciones. Para usarla hay que agregarla al `environment` del servicio `backend` en Compose. |
+| `SUSCRIPCION_DEMO` | `true` | Apagar la suscripción simulada. Mismo requisito que la anterior. |
+| `SUSCRIPCION_DEMO_DIAS` | `30` | Días de Premium por activación. Mismo requisito que la anterior. |
+
 ## Alternativa Render + EAS
 `render.yaml` define dos servicios Docker y PostgreSQL administrado con `plan: free`. Los servicios comparten 750 horas mensuales por workspace, se suspenden tras 15 minutos sin tráfico y pueden tardar cerca de un minuto en despertar. PostgreSQL caduca a los 30 días. Antes de la exposición, abrir la web y comprobar el endpoint de estado de la API. Medir también el arranque en frío por separado. Los nombres de servicios deben ajustarse si ya están ocupados. No activar el perfil demo en producción.
 

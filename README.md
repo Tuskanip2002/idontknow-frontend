@@ -1,4 +1,6 @@
 # I Don’t Know
+[![Platform checks](https://github.com/Tuskanip2002/idontknow-frontend/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/Tuskanip2002/idontknow-frontend/actions/workflows/ci.yml)
+
 Un diario donde cada noticia es una probabilidad. Proyecto CS2031 DBP, UTEC, 2026-2.
 
 Repositorio del proyecto completo: [idontknow-frontend](https://github.com/Tuskanip2002/idontknow-frontend).
@@ -7,7 +9,7 @@ Repositorio del proyecto completo: [idontknow-frontend](https://github.com/Tuska
 
 - [Web pública](https://18-223-255-39.sslip.io/)
 - [Estado de la API](https://18-223-255-39.sslip.io/api/v1/estado)
-- [APK de Android en Expo](https://expo.dev/accounts/tuskanips-team/projects/idontknow-dbp/builds/2dd22c09-1bda-4f6d-a079-e2a541e2c41f)
+- [APK de Android en Expo](https://expo.dev/accounts/tuskanips-team/projects/idontknow-dbp/builds/e3960d2d-073c-46ef-9afc-7271f8f8172a)
 
 La web y el backend se ejecutan en Amazon EC2 con Docker Compose. Caddy sirve la web y la API por HTTPS en el mismo dominio. El backend guarda los datos en PostgreSQL privado en Amazon RDS. La configuración de los contenedores está en [compose.aws.yaml](compose.aws.yaml).
 
@@ -16,6 +18,20 @@ Para usar la web, crea una cuenta de lector desde [Registrarse](https://18-223-2
 La compilación del APK está lista. Queda pendiente probar en un Android físico el inicio de sesión, la persistencia al reabrir la app, el escáner QR y la lectura por inclinación.
 
 La web pública fue revisada por Rance. Las cuatro categorías tienen mercados y el detalle permite leer una versión en español. Consulta las [evidencias de entrega](docs/EVIDENCIAS.md) para ver las comprobaciones y mediciones de la API. La prueba Android está asignada a los compañeros del equipo. El envío de correo sigue pendiente de configuración SMTP.
+
+## Novedades para la final del Premio Tim Berners-Lee
+
+| Función | Qué hace | Dónde verla |
+| --- | --- | --- |
+| “¿Por qué este número?” | Cada titular trae un resumen en español con fuentes citadas: noticias de GDELT (con Google News RSS como respaldo) y comentarios del evento en Polymarket. El resumen lo genera Groq usando solo esas fuentes y, si no explican el movimiento, lo dice en lugar de inventar una causa. Se precalcula al publicarse la portada. | `backend/.../explicacion/`, `web/src/components/ExplanationPanel.tsx`, `mobile/src/screens/News.tsx` |
+| Modelo freemium | El número es gratis; el resumen y las fuentes son Premium. Sin Premium se muestra un adelanto con la cantidad y el tipo de fuentes. La suscripción es simulada (30 días, sin cobro). | `backend/.../explicacion/model/ExplicacionService.java`, `backend/.../user/model/UsuarioService.java` |
+| Huella o rostro | Segundo sensor del móvil (`expo-local-authentication`). Es opcional: protege la sesión guardada al abrir la app y confirma la suscripción. | `mobile/src/services/biometrics.ts`, `mobile/src/contexts/AppContext.tsx` |
+| Modo oscuro en móvil | La app sigue el modo claro u oscuro del sistema, con la misma paleta que la web. | `mobile/src/components/ui.tsx`, `mobile/src/App.tsx` |
+| Logo | Ícono de la app (con versión temática para Android 13+), pantalla de carga clara y oscura, favicon y logo en las cabeceras. | `mobile/assets/`, `web/public/` |
+| Filtro de portada | Los mercados de chismes o contenido sexual no entran a la portada; siguen disponibles en “Mercados”. | `backend/.../util/FiltroTemas.java` |
+| Cámara del QR | Se corrigió la vista previa, que en Android se veía como un recuadro verde oscuro. | `mobile/src/screens/Sensors.tsx` |
+
+Endpoints nuevos: `GET /titulares/{id}/explicacion`, `POST` y `DELETE /usuarios/me/suscripcion` y `POST /explicaciones/regenerar` (solo ADMIN). La arquitectura de las explicaciones está en [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#explicaciones-premium).
 
 ## Equipo
 - Rance Blondet Borja
@@ -100,7 +116,7 @@ Consulta [despliegue](docs/DEPLOYMENT.md), [rúbrica](docs/RUBRIC.md), [arquitec
 | --- | --- | --- |
 | Backend (API REST) | Spring Boot 4.1.1 · Java 21 · PostgreSQL | [Estado de la API](https://18-223-255-39.sslip.io/api/v1/estado) · código en [`backend/`](backend/) (origen: [jg42-2/idontknow-backend](https://github.com/jg42-2/idontknow-backend)) |
 | Frontend web | React 19 · TypeScript · Vite · React Router | [Web pública](https://18-223-255-39.sslip.io/) · código en [`web/`](web/) |
-| Frontend móvil | React Native · Expo SDK 54 · React Navigation | [APK de Android en Expo](https://expo.dev/accounts/tuskanips-team/projects/idontknow-dbp/builds/dcb8354c-bf62-45cd-b983-68365e6959c6) · código en [`mobile/`](mobile/) |
+| Frontend móvil | React Native · Expo SDK 54 · React Navigation | [APK de Android en Expo](https://expo.dev/accounts/tuskanips-team/projects/idontknow-dbp/builds/e3960d2d-073c-46ef-9afc-7271f8f8172a) · código en [`mobile/`](mobile/) |
 | Deployment | AWS EC2 + Docker Compose · Caddy (HTTPS) · Amazon RDS (PostgreSQL) · Expo EAS | Configuración en [`compose.aws.yaml`](compose.aws.yaml) y [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) |
  
 ## Cobertura de la rúbrica
@@ -109,15 +125,16 @@ Consulta [despliegue](docs/DEPLOYMENT.md), [rúbrica](docs/RUBRIC.md), [arquitec
 | --- | --- | --- |
 | Mobile: integración con el backend | Todas las funciones principales consumen nuestra API REST. JWT guardado en Expo SecureStore. Headers `Authorization` y `Content-Type` en cada request e interceptores centralizados. | `mobile/src/services/api.ts`, `packages/api/src/client.ts` |
 | Mobile: arquitectura | Carpetas `screens`, `components`, `services`, `hooks` y `contexts`. Custom hooks (`useQuery`, `useTiltReader`), Context API y React Navigation con stack y pestañas. | `mobile/src/` |
-| Mobile: sensores y API externa | Cámara (lector QR) y acelerómetro (lectura por inclinación), con permisos y alternativas si no hay sensor o permiso. API externa Gamma de Polymarket como contexto complementario. | `mobile/src/screens/Sensors.tsx`, `mobile/src/hooks/useTiltReader.ts` |
+| Mobile: sensores y API externa | Cámara (lector QR), acelerómetro (lectura por inclinación) y huella o rostro (`expo-local-authentication`) para proteger la sesión y confirmar la suscripción, con permisos y alternativas si no hay sensor o permiso. API externa Gamma de Polymarket como contexto complementario. | `mobile/src/screens/Sensors.tsx`, `mobile/src/hooks/useTiltReader.ts`, `mobile/src/services/biometrics.ts` |
 | Mobile: errores y carga | Mensajes amigables por código HTTP, estados de carga, reintento de GET ante fallas de red, validaciones y botones bloqueados durante el envío. | `mobile/src/components/ui.tsx` (`QueryState`) |
 | Web: integración con el backend | Axios con `baseURL`, headers e interceptores centralizados. JWT solo en memoria y refresh token en cookie HttpOnly con rotación. `AbortController` para cancelar requests. | `web/src/services/api.ts`, `packages/api/src/client.ts`, `web/src/hooks/useQuery.ts` |
 | Web: componentes y arquitectura | Más de 10 componentes reutilizables (`Button`, `Field`, `Pagination`, `QueryState`, `EmptyState`, `Dialog`, `HeadlineCard`, `HistoryChart`, entre otros). Custom hooks, Context API (`AuthProvider`, `ToastProvider`) y props tipadas con TypeScript. | `web/src/components/`, `web/src/contexts/` |
 | Web: routing | React Router con rutas dinámicas (`mercados/:id`, `titulares/:id`, `archivo/:date`), query params (`page`, `size`, `q`, `categoria`, `sort`), rutas protegidas, `React.lazy` + `Suspense` y página 404. | `web/src/App.tsx` |
 | Web: errores, carga y validaciones | `ErrorBoundary`, mensajes diferenciados por código (400, 401, 403, 404, 409, 500), estados de carga, toasts de confirmación, validaciones de formularios y reintento seguro solo para GET. | `web/src/components/ui.tsx`, `packages/api/src/client.ts` |
-| UI/UX | Diseño responsive con estilos por variables, tema oscuro, iconos consistentes, búsqueda con debounce, filtros y orden, confirmación de acciones destructivas y estados vacíos con acción. | `web/src/styles.css`, `web/src/pages/` |
+| UI/UX | Diseño responsive con estilos por variables, tema oscuro en la web y en la app móvil (que sigue el modo del sistema), iconos consistentes, búsqueda con debounce, filtros y orden, confirmación de acciones destructivas y estados vacíos con acción. | `web/src/styles.css`, `web/src/pages/` |
 | Vistas | Portada, registro, login, mercados, detalle, archivo, edición, guardados, perfil, temas, administración y acerca de. | `web/src/pages/` |
 | Paginación | En `/mercados` y `/ediciones`, con anterior/siguiente y números de página, tamaños 10/25/50/100, total de resultados y estado guardado en la URL. | `web/src/pages/Markets.tsx`, `web/src/pages/Archive.tsx` |
+| Explicaciones con fuentes (final) | Resumen Premium con fuentes citadas (GDELT, Google News RSS y comentarios de Polymarket), generado con Groq solo a partir de esas fuentes, precalculado en segundo plano y con adelanto gratuito. | `backend/src/main/java/utec/idontknowbackend/explicacion/`, `web/src/components/ExplanationPanel.tsx` |
 | Deployment | Backend y web en AWS EC2 con Docker Compose, Caddy con HTTPS, PostgreSQL en Amazon RDS y APK distribuido con Expo. Variables de entorno en el servidor, sin secretos en el repositorio. Latencia media medida entre 130 y 300 ms en los endpoints principales. | [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md), [`docs/EVIDENCIAS.md`](docs/EVIDENCIAS.md) |
  
 ## Equipo y participación

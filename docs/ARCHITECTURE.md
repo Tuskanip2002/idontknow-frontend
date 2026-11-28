@@ -10,10 +10,13 @@ flowchart LR
     API --> DB[(PostgreSQL administrado)]
     API --> PM[Polymarket Gamma]
     API --> Groq[Groq]
+    API --> GDELT[GDELT]
+    API --> RSS[Google News RSS]
     API --> SMTP[Correo SMTP]
     Mobile -. contexto complementario .-> PM
     Camera[Cámara QR] --> Mobile
     Tilt[Acelerómetro] --> Mobile
+    Bio[Huella o rostro] --> Mobile
 ```
 
 ## Capas
@@ -45,3 +48,31 @@ La API externa en móvil añade la descripción y el volumen del mercado origina
 Se añadieron refresh sessions, respuestas 401/403 explícitas, contexto de transacción para relaciones LAZY, manejo de conflictos de integridad, endpoint de estado con comprobación de DB, configuración por entorno, administrador por variables y perfiles de demostración/pruebas. Las fechas de portada y el cron diario usan America/Lima.
 
 La base H2 de demostración sirve para revisar flujos sin credenciales. Producción utiliza PostgreSQL; H2 no reemplaza la prueba final contra esa infraestructura.
+
+## Explicaciones Premium
+
+```mermaid
+flowchart LR
+    Portada[PortadaGeneradaEvent] --> Listener[ExplicacionListener @Async]
+    Listener --> Claves[PalabrasClave]
+    Claves --> Noticias[NoticiasClient]
+    Noticias --> GDELT[GDELT]
+    Noticias -. sin resultados .-> RSS[Google News RSS]
+    Listener --> Comentarios[Comentarios del evento en Polymarket]
+    Noticias --> Groq[Groq: resumen con citas]
+    Comentarios --> Groq
+    Groq --> DB[(Explicacion + fuentes)]
+    DB --> Endpoint[GET /titulares/ID/explicacion]
+```
+
+- **Cuándo:** al publicarse la portada (`PortadaGeneradaEvent`) y al arrancar el servidor si faltan las del día. Corre en segundo plano, así que la web y la app solo leen de la base de datos y la demo no depende de que los proveedores respondan en vivo.
+- **Fuentes:** `PalabrasClave` reduce la pregunta a hasta tres palabras. `NoticiasClient` consulta GDELT y, si no hay resultados, Google News RSS. Los comentarios se toman del evento asociado al mercado en Polymarket.
+- **Resumen:** Groq recibe solo esas fuentes, debe citarlas con [n] y habla de posibles factores. Si no hay evidencia, se guarda un mensaje honesto. Al regenerar, si un proveedor no devuelve nada, se conservan las fuentes anteriores.
+- **Acceso:** la ruta es pública. `ExplicacionService` entrega el resumen y las fuentes a usuarios Premium vigentes y a ADMIN; el resto recibe un adelanto con la cantidad y el tipo de fuentes.
+- **Plan:** `Usuario.plan` (FREE o PREMIUM) y `premiumHasta`. La suscripción de la demo es simulada y dura 30 días.
+
+## Portada
+`PortadaBuilderService` ordena los movimientos del día por puntaje (`ScoreCalculator`) y arma hasta diez titulares. Antes, `FiltroTemas` descarta los mercados de chismes o contenido sexual buscando palabras completas en la pregunta original; esos mercados siguen disponibles en el listado de mercados.
+
+## Tema claro y oscuro
+La web guarda el tema en `data-theme` y el botón de sol/luna lo alterna; el favicon y el logo de la cabecera cambian con él. La app móvil sigue el modo del sistema (`userInterfaceStyle: automatic` con `expo-system-ui`): la paleta de `components/ui.tsx` se regenera y las pantallas se vuelven a montar al cambiar de modo, sin perder la sesión.
