@@ -15,9 +15,9 @@ La web y el backend se ejecutan en Amazon EC2 con Docker Compose. Caddy sirve la
 
 Para usar la web, crea una cuenta de lector desde [Registrarse](https://18-223-255-39.sslip.io/registro). En Android, instala el APK desde Expo e inicia sesión con esa misma cuenta. En iPhone, abre la web en Safari.
 
-La compilación del APK está lista. Queda pendiente probar en un Android físico el inicio de sesión, la persistencia al reabrir la app, el escáner QR y la lectura por inclinación.
+El APK se genera con EAS desde `master`. El 27 de noviembre se instaló en un Android físico y cargó la portada desde producción, con el modo oscuro del sistema.
 
-La web pública fue revisada por Rance. Las cuatro categorías tienen mercados y el detalle permite leer una versión en español. Consulta las [evidencias de entrega](docs/EVIDENCIAS.md) para ver las comprobaciones y mediciones de la API. La prueba Android está asignada a los compañeros del equipo. El envío de correo sigue pendiente de configuración SMTP.
+La web pública fue revisada por Rance. Las cuatro categorías tienen mercados y el detalle permite leer una versión en español. Consulta las [evidencias de entrega](docs/EVIDENCIAS.md) para ver las capturas, las comprobaciones y las mediciones de la API del 27 de noviembre. El envío de correo sigue pendiente de configuración SMTP.
 
 ## Novedades para la final del Premio Tim Berners-Lee
 
